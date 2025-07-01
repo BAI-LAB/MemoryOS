@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/bai-lab-memoryos-badge.png)](https://mseep.ai/app/bai-lab-memoryos)
+
 # MemoryOS
 <div align="center">
   <img src="logo_1.png" alt="logo" width="400"/>
