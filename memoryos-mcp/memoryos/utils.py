@@ -63,6 +63,7 @@ def normalize_vector(vec):
 
 # ---- Time Decay Function ----
 def compute_time_decay(event_timestamp_str, current_timestamp_str, tau_hours=24):
+
     from datetime import datetime
     fmt = "%Y-%m-%d %H:%M:%S"
     try:
@@ -77,6 +78,7 @@ def compute_time_decay(event_timestamp_str, current_timestamp_str, tau_hours=24)
 # ---- LLM-based Utility Functions ----
 
 def gpt_summarize_dialogs(dialogs, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
     dialog_text = "\n".join([f"User: {d.get('user_input','')} Assistant: {d.get('agent_response','')}" for d in dialogs])
     messages = [
         {"role": "system", "content": prompts.SUMMARIZE_DIALOGS_SYSTEM_PROMPT},
@@ -86,6 +88,7 @@ def gpt_summarize_dialogs(dialogs, client: OpenAIClient, model="gpt-4o-mini"):
     return client.chat_completion(model=model, messages=messages)
 
 def gpt_generate_multi_summary(text, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
     messages = [
         {"role": "system", "content": prompts.MULTI_SUMMARY_SYSTEM_PROMPT},
         {"role": "user", "content": prompts.MULTI_SUMMARY_USER_PROMPT.format(text=text)}
@@ -102,6 +105,7 @@ def gpt_generate_multi_summary(text, client: OpenAIClient, model="gpt-4o-mini"):
 
 def gpt_user_profile_analysis(dialogs, client: OpenAIClient, model="gpt-4o-mini", known_user_traits="None"):
     """Analyze user personality profile from dialogs"""
+    model=os.environ.get("llm_model") or model
     conversation = "\n".join([f"User: {d.get('user_input','')} (Timestamp: {d.get('timestamp', '')})\nAssistant: {d.get('agent_response','')} (Timestamp: {d.get('timestamp', '')})" for d in dialogs])
     messages = [
         {"role": "system", "content": prompts.PERSONALITY_ANALYSIS_SYSTEM_PROMPT},
@@ -117,6 +121,7 @@ def gpt_user_profile_analysis(dialogs, client: OpenAIClient, model="gpt-4o-mini"
 
 def gpt_knowledge_extraction(dialogs, client: OpenAIClient, model="gpt-4o-mini"):
     """Extract user private data and assistant knowledge from dialogs"""
+    model=os.environ.get("llm_model") or model
     conversation = "\n".join([f"User: {d.get('user_input','')} (Timestamp: {d.get('timestamp', '')})\nAssistant: {d.get('agent_response','')} (Timestamp: {d.get('timestamp', '')})" for d in dialogs])
     messages = [
         {"role": "system", "content": prompts.KNOWLEDGE_EXTRACTION_SYSTEM_PROMPT},
@@ -160,6 +165,7 @@ def gpt_personality_analysis(dialogs, client: OpenAIClient, model="gpt-4o-mini",
     DEPRECATED: Use gpt_user_profile_analysis and gpt_knowledge_extraction instead.
     This function is kept for backward compatibility only.
     """
+    model=os.environ.get("llm_model") or model
     # Call the new functions
     profile = gpt_user_profile_analysis(dialogs, client, model, known_user_traits)
     knowledge_data = gpt_knowledge_extraction(dialogs, client, model)
@@ -172,6 +178,7 @@ def gpt_personality_analysis(dialogs, client: OpenAIClient, model="gpt-4o-mini",
 
 
 def gpt_update_profile(old_profile, new_analysis, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
     messages = [
         {"role": "system", "content": prompts.UPDATE_PROFILE_SYSTEM_PROMPT},
         {"role": "user", "content": prompts.UPDATE_PROFILE_USER_PROMPT.format(old_profile=old_profile, new_analysis=new_analysis)}
@@ -180,6 +187,7 @@ def gpt_update_profile(old_profile, new_analysis, client: OpenAIClient, model="g
     return client.chat_completion(model=model, messages=messages)
 
 def gpt_extract_theme(answer_text, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
     messages = [
         {"role": "system", "content": prompts.EXTRACT_THEME_SYSTEM_PROMPT},
         {"role": "user", "content": prompts.EXTRACT_THEME_USER_PROMPT.format(answer_text=answer_text)}
@@ -188,6 +196,8 @@ def gpt_extract_theme(answer_text, client: OpenAIClient, model="gpt-4o-mini"):
     return client.chat_completion(model=model, messages=messages)
 
 def llm_extract_keywords(text, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
+
     messages = [
         {"role": "system", "content": prompts.EXTRACT_KEYWORDS_SYSTEM_PROMPT},
         {"role": "user", "content": prompts.EXTRACT_KEYWORDS_USER_PROMPT.format(text=text)}
@@ -198,6 +208,7 @@ def llm_extract_keywords(text, client: OpenAIClient, model="gpt-4o-mini"):
 
 # ---- Functions from dynamic_update.py (to be used by Updater class) ----
 def check_conversation_continuity(previous_page, current_page, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
     prev_user = previous_page.get("user_input", "") if previous_page else ""
     prev_agent = previous_page.get("agent_response", "") if previous_page else ""
     
@@ -215,6 +226,7 @@ def check_conversation_continuity(previous_page, current_page, client: OpenAICli
     return response.strip().lower() == "true"
 
 def generate_page_meta_info(last_page_meta, current_page, client: OpenAIClient, model="gpt-4o-mini"):
+    model=os.environ.get("llm_model") or model
     current_conversation = f"User: {current_page.get('user_input', '')}\nAssistant: {current_page.get('agent_response', '')}"
     user_prompt = prompts.META_INFO_USER_PROMPT.format(
         last_meta=last_page_meta if last_page_meta else "None",
