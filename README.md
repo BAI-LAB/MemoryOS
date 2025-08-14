@@ -462,7 +462,7 @@ BaiJia AI is a research team guided by Associate Professor Bai Ting from Beijing
 
 <div style="display: flex; justify-content: center; gap: 20px;">
   <img src="https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9" alt="百家Agent公众号" width="250"/> 
-  <img src="https://github.com/user-attachments/assets/a16d9d4e-71bf-496c-9bbb-cb7cf11fe250" alt="微信群二维码" width="250"/>
+  <img src="https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e" alt="微信群二维码" width="250"/>
 
 </div>
 
