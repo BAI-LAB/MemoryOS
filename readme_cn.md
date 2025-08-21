@@ -176,7 +176,7 @@
 
 ## 🏗️ 系统架构
 
-<img src="[https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0](https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0)" width="80%" alt="image">
+<img src="https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0" width="80%" alt="image">
 
 ## 🏗️ 项目结构
 
