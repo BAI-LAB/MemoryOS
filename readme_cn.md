@@ -455,13 +455,14 @@ MemoryOS 正在不断发展！以下是即将推出的功能：
 📣 关注我们的**微信公众号**，加入**微信群**或 <img src="[https://img.shields.io/badge/Discord-yellow](https://img.shields.io/badge/Discord-yellow)" alt="Discord"> [https://discord.gg/SqVj7QvZ](https://discord.gg/SqVj7QvZ) 获取最新动态。
 
 <div style="display: flex; justify-content: center; gap: 20px;">
-<img src="[https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9](https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9)" alt="百家Agent公众号" width="250"/>
-<img src="[https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e](https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e)" alt="微信群二维码" width="250"/>
+  <img src="https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9" alt="百家Agent公众号" width="250"/> 
+  <img src="https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e" alt="微信群二维码" width="250"/>
+
 </div>
 
 ## 🌟 Star 历史
 
-[](https://www.star-history.com/#BAI-LAB/MemoryOS&Timeline)
+[![Star History Chart](https://api.star-history.com/svg?repos=BAI-LAB/MemoryOS&type=Timeline)](https://www.star-history.com/#BAI-LAB/MemoryOS&Timeline)
 
 ## 免责声明
 
