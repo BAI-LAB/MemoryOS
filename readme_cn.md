@@ -21,162 +21,162 @@
   </a>
 </p>
 
-\<h5 align="center"\> 🎉 如果您喜欢我们的项目，请在 GitHub 上给我们一个星 ⭐ 以获取最新更新。\</h5\>
+<h5 align="center"> 🎉 如果您喜欢我们的项目，请在 GitHub 上给我们一个星 ⭐ 以获取最新更新。</h5>
 
 **MemoryOS** 旨在为个性化 AI 智能体提供记忆操作系统，以实现更连贯、个性化和情境感知的交互。它从操作系统的内存管理原理中汲取灵感，采用分层存储架构，包含四个核心模块：存储、更新、检索和生成，以实现全面高效的内存管理。在 LoCoMo 基准测试中，该模型在 F1 和 BLEU-1 分数上平均提升了 **49.11%** 和 **46.18%**。
 
-  - **论文**: \<a href="[https://arxiv.org/abs/2506.06326](https://arxiv.org/abs/2506.06326)" target="\_blank"\>[https://arxiv.org/abs/2506.06326](https://arxiv.org/abs/2506.06326)\</a\>
-  - **网站**: \<a href="[https://baijia.online/memoryos/](https://baijia.online/memoryos/)" target="\_blank"\>[https://baijia.online/memoryos/](https://baijia.online/memoryos/)\</a\>
-  - **文档**: \<a href="[https://bai-lab.github.io/MemoryOS/docs](https://bai-lab.github.io/MemoryOS/docs)" target="\_blank"\>[https://bai-lab.github.io/MemoryOS/docs](https://bai-lab.github.io/MemoryOS/docs)\</a\>
+  - **论文**: <a href="[https://arxiv.org/abs/2506.06326](https://arxiv.org/abs/2506.06326)" target="_blank">[https://arxiv.org/abs/2506.06326](https://arxiv.org/abs/2506.06326)</a>
+  - **网站**: <a href="[https://baijia.online/memoryos/](https://baijia.online/memoryos/)" target="_blank">[https://baijia.online/memoryos/](https://baijia.online/memoryos/)</a>
+  - **文档**: <a href="[https://bai-lab.github.io/MemoryOS/docs](https://bai-lab.github.io/MemoryOS/docs)" target="_blank">[https://bai-lab.github.io/MemoryOS/docs](https://bai-lab.github.io/MemoryOS/docs)</a>
   - **YouTube 视频**: **MemoryOS MCP + RAG Agent That Can Remember Anything**
-  - \<a href="[https://www.youtube.com/watch?v=WHQu8fpEOaU](https://www.youtube.com/watch?v=WHQu8fpEOaU) "\>[https://www.youtube.com/watch?v=WHQu8fpEOaU](https://www.youtube.com/watch?v=WHQu8fpEOaU) \</a\>
+  - <a href="[https://www.youtube.com/watch?v=WHQu8fpEOaU](https://www.youtube.com/watch?v=WHQu8fpEOaU) ">[https://www.youtube.com/watch?v=WHQu8fpEOaU](https://www.youtube.com/watch?v=WHQu8fpEOaU) </a>
 
-\<span id='features'/\>
+<span id='features'/>
 
 ## ✨ 主要特性
 
   * 🏆 **顶级的内存管理性能**
-    \</br\> 在长期记忆基准测试中取得 SOTA 成果，在 LoCoMo 基准上 F1 分数提升 49.11%，BLEU-1 分数提升 46.18%。
+    </br> 在长期记忆基准测试中取得 SOTA 成果，在 LoCoMo 基准上 F1 分数提升 49.11%，BLEU-1 分数提升 46.18%。
 
   * 🧠 **即插即用的内存管理架构**
-    \</br\> 支持无缝集成的可插拔内存模块——包括存储引擎、更新策略和检索算法。
+    </br> 支持无缝集成的可插拔内存模块——包括存储引擎、更新策略和检索算法。
 
   * ✨ **轻松创建智能体工作流** (**MemoryOS-MCP**)
-    \</br\> 通过调用 MCP 服务器提供的模块化工具，为各种 AI 应用注入长期记忆能力。
+    </br> 通过调用 MCP 服务器提供的模块化工具，为各种 AI 应用注入长期记忆能力。
 
   * 🌐 **通用大语言模型支持**
-    \</br\> MemoryOS 无缝集成各种大语言模型 (例如 OpenAI, Deepseek, Qwen ...)。
+    </br> MemoryOS 无缝集成各种大语言模型 (例如 OpenAI, Deepseek, Qwen ...)。
 
-\<span id='news'/\>
+<span id='news'/>
 
 ## 📣 最新消息
 
-  * *\<mark\>[new]\</mark\>* 🔥🔥🔥 **[2025-07-15]**: **🔌 支持** 向量数据库 [Chromadb](https://www.google.com/search?q=%23memoryos_chromadb-getting-started)
-  * *\<mark\>[new]\</mark\>* 🔥🔥🔥 **[2025-07-15]**: **🔌 集成** [Docker](https://www.google.com/search?q=%23docker-getting-started) 到部署流程
-  * *\<mark\>[new]\</mark\>* 🔥🔥 **[2025-07-14]**: **⚡ 加速** MCP 并行化
-  * *\<mark\>[new]\</mark\>* 🔥🔥 **[2025-07-14]**: **🔌 支持** BGE-M3 & Qwen3 嵌入模型 (PyPI 和 MCP)
-  * *\<mark\>[new]\</mark\>* 🔥 **[2025-07-09]**: **📊 评估** MemoryOS 在 LoCoMo 数据集上的表现: 公开可用 [👉复现](https://www.google.com/search?q=%23reproduce)
-  * *\<mark\>[new]\</mark\>* 🔥 **[2025-07-08]**: **🏆 新增配置参数**
-  * 新增参数配置: **similarity\_threshold**。配置文件请参见 📖 [文档](https://bai-lab.github.io/MemoryOS/docs) 页面。
-  * *\<mark\>[new]\</mark\>* **[2025-07-07]**: **🚀 5倍速度提升**
+  * *<mark>[new]</mark>* 🔥🔥🔥 **[2025-07-15]**: **🔌 支持** 向量数据库 [Chromadb](https://www.google.com/search?q=%23memoryos_chromadb-getting-started)
+  * *<mark>[new]</mark>* 🔥🔥🔥 **[2025-07-15]**: **🔌 集成** [Docker](https://www.google.com/search?q=%23docker-getting-started) 到部署流程
+  * *<mark>[new]</mark>* 🔥🔥 **[2025-07-14]**: **⚡ 加速** MCP 并行化
+  * *<mark>[new]</mark>* 🔥🔥 **[2025-07-14]**: **🔌 支持** BGE-M3 & Qwen3 嵌入模型 (PyPI 和 MCP)
+  * *<mark>[new]</mark>* 🔥 **[2025-07-09]**: **📊 评估** MemoryOS 在 LoCoMo 数据集上的表现: 公开可用 [👉复现](https://www.google.com/search?q=%23reproduce)
+  * *<mark>[new]</mark>* 🔥 **[2025-07-08]**: **🏆 新增配置参数**
+  * 新增参数配置: **similarity_threshold**。配置文件请参见 📖 [文档](https://bai-lab.github.io/MemoryOS/docs) 页面。
+  * *<mark>[new]</mark>* **[2025-07-07]**: **🚀 5倍速度提升**
   * MemoryOS (PYPI) 实现已升级：通过并行化优化，**速度提升5倍** (延迟降低)。
-  * *\<mark\>[new]\</mark\>* **[2025-07-07]**: **✨ 现已支持 R1 模型**
+  * *<mark>[new]</mark>* **[2025-07-07]**: **✨ 现已支持 R1 模型**
   * MemoryOS 支持配置和使用 **Deepseek-r1 和 Qwen3** 等推理模型。
-  * *\<mark\>[new]\</mark\>* **[2025-07-07]**: **✨MemoryOS Playground 上线**
+  * *<mark>[new]</mark>* **[2025-07-07]**: **✨MemoryOS Playground 上线**
   * **MemoryOS Platform** 的 Playground 已经上线！[👉MemoryOS Platform](https://baijia.online/memoryos/)。如果您需要**邀请码**，请随时 [联系我们](https://www.google.com/search?q=%23community)。
-  * *\<mark\>[new]\</mark\>* **[2025-06-15]**:🛠️ 开源 **MemoryOS-MCP** 发布！现在可在智能体客户端上配置，以实现无缝集成和定制。[👉 MemoryOS-MCP](https://www.google.com/search?q=%23memoryos-mcp-getting-started)。
+  * *<mark>[new]</mark>* **[2025-06-15]**:🛠️ 开源 **MemoryOS-MCP** 发布！现在可在智能体客户端上配置，以实现无缝集成和定制。[👉 MemoryOS-MCP](https://www.google.com/search?q=%23memoryos-mcp-getting-started)。
   * **[2025-05-30]**: 📄 论文-**Memory OS of AI Agent** 已在 arXiv 上发布: [https://arxiv.org/abs/2506.06326](https://arxiv.org/abs/2506.06326)。
   * **[2025-05-30]**: **MemoryOS** 初始版本发布！具有短期、中期和长期角色记忆，以及自动用户画像和知识更新功能。
 
-\<span id='list'/\>
+<span id='list'/>
 
 ## 🔥 MemoryOS 支持列表
 
-\<table\>
-\<thead\>
-\<tr\>
-\<th\>类型\</th\>
-\<th\>名称\</th\>
-\<th\>开源\</th\>
-\<th\>支持\</th\>
-\<th\>配置\</th\>
-\<th\>描述\</th\>
-\</tr\>
-\</thead\>
-\<tbody\>
-\<tr\>
-\<td rowspan="3"\>智能体客户端\</td\>
-\<td\>\<strong\>Claude Desktop\</strong\>\</td\>
-\<td\>❌\</td\>
-\<td\>✅\</td\>
-\<td\>claude\_desktop\_config.json\</td\>
-\<td\>Anthropic 官方客户端\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>Cline\</strong\>\</td\>
-\<td\>✅\</td\>
-\<td\>✅\</td\>
-\<td\>VS Code settings\</td\>
-\<td\>VS Code 扩展\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>Cursor\</strong\>\</td\>
-\<td\>❌\</td\>
-\<td\>✅\</td\>
-\<td\>Settings panel\</td\>
-\<td\>AI 代码编辑器\</td\>
-\</tr\>
-\<tr\>
-\<td rowspan="6"\>模型提供商\</td\>
-\<td\>\<strong\>OpenAI\</strong\>\</td\>
-\<td\>❌\</td\>
-\<td\>✅\</td\>
-\<td\>OPENAI\_API\_KEY\</td\>
-\<td\>GPT-4, GPT-3.5, 等.\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>Anthropic\</strong\>\</td\>
-\<td\>❌\</td\>
-\<td\>✅\</td\>
-\<td\>ANTHROPIC\_API\_KEY\</td\>
-\<td\>Claude 系列\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>Deepseek-R1\</strong\>\</td\>
-\<td\>✅\</td\>
-\<td\>✅\</td\>
-\<td\>DEEPSEEK\_API\_KEY\</td\>
-\<td\>中文大模型\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>Qwen/Qwen3\</strong\>\</td\>
-\<td\>✅\</td\>
-\<td\>✅\</td\>
-\<td\>QWEN\_API\_KEY\</td\>
-\<td\>阿里巴巴通义千问\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>vLLM\</strong\>\</td\>
-\<td\>✅\</td\>
-\<td\>✅\</td\>
-\<td\>本地部署\</td\>
-\<td\>本地模型推理\</td\>
-\</tr\>
-\<tr\>
-\<td\>\<strong\>Llama\_factory\</strong\>\</td\>
-\<td\>✅\</td\>
-\<td\>✅\</td\>
-\<td\>本地部署\</td\>
-\<td\>本地微调部署\</td\>
-\</tr\>
-\</tbody\>
-\</table\>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>名称</th>
+<th>开源</th>
+<th>支持</th>
+<th>配置</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="3">智能体客户端</td>
+<td><strong>Claude Desktop</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>claude_desktop_config.json</td>
+<td>Anthropic 官方客户端</td>
+</tr>
+<tr>
+<td><strong>Cline</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>VS Code settings</td>
+<td>VS Code 扩展</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>Settings panel</td>
+<td>AI 代码编辑器</td>
+</tr>
+<tr>
+<td rowspan="6">模型提供商</td>
+<td><strong>OpenAI</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>OPENAI_API_KEY</td>
+<td>GPT-4, GPT-3.5, 等.</td>
+</tr>
+<tr>
+<td><strong>Anthropic</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>ANTHROPIC_API_KEY</td>
+<td>Claude 系列</td>
+</tr>
+<tr>
+<td><strong>Deepseek-R1</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>DEEPSEEK_API_KEY</td>
+<td>中文大模型</td>
+</tr>
+<tr>
+<td><strong>Qwen/Qwen3</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>QWEN_API_KEY</td>
+<td>阿里巴巴通义千问</td>
+</tr>
+<tr>
+<td><strong>vLLM</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>本地部署</td>
+<td>本地模型推理</td>
+</tr>
+<tr>
+<td><strong>Llama_factory</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>本地部署</td>
+<td>本地微调部署</td>
+</tr>
+</tbody>
+</table>
 所有模型调用均使用 OpenAI API 接口；您需要提供 API 密钥和基础 URL。
 
 ## 📑 目录
 
-  * \<a href='\#features'\>✨ 特性\</a\>
-  * \<a href='\#news'\>🔥 最新消息\</a\>
-  * \<a href='\#list'\>🔍 支持列表\</a\>
-  * \<a href='\#structure'\> 📁 项目结构\</a\>
-  * \<a href='\#pypi-mode'\>🎯 快速入门\</a\>
-      * \<a href='pypi-mode'\>通过 PYPI 安装 MemoryOS\</a\>
-      * \<a href='\#MCP-mode'\>MemoryOS-MCP\</a\>
-      * \<a href='https://www.google.com/search?q=%23memoryos\_chromadb-getting-started'\>MemoryOS-chromadb\</a\>
-      * \<a href='https://www.google.com/search?q=%23docker-getting-started'\>Docker\</a\>
-  * \<a href='\#todo'\>☑️ 待办事项\</a\>
-  * \<a href='https://www.google.com/search?q=%23reproduce'\>🔬 如何复现论文中的结果\</a\>
-  * \<a href='\#doc'\>📖 文档\</a\>
-  * \<a href='\#cite'\>🌟 引用\</a\>
-  * \<a href='https://www.google.com/search?q=%23community'\>🤝 加入社区\</a\>
+  * <a href='#features'>✨ 特性</a>
+  * <a href='#news'>🔥 最新消息</a>
+  * <a href='#list'>🔍 支持列表</a>
+  * <a href='#structure'> 📁 项目结构</a>
+  * <a href='#pypi-mode'>🎯 快速入门</a>
+      * <a href='pypi-mode'>通过 PYPI 安装 MemoryOS</a>
+      * <a href='#MCP-mode'>MemoryOS-MCP</a>
+      * <a href='https://www.google.com/search?q=%23memoryos_chromadb-getting-started'>MemoryOS-chromadb</a>
+      * <a href='https://www.google.com/search?q=%23docker-getting-started'>Docker</a>
+  * <a href='#todo'>☑️ 待办事项</a>
+  * <a href='https://www.google.com/search?q=%23reproduce'>🔬 如何复现论文中的结果</a>
+  * <a href='#doc'>📖 文档</a>
+  * <a href='#cite'>🌟 引用</a>
+  * <a href='https://www.google.com/search?q=%23community'>🤝 加入社区</a>
 
-\<span id='vedio'/\>
+<span id='vedio'/>
 
-\<span id='structure'/\>
+<span id='structure'/>
 
 ## 🏗️ 系统架构
 
-\<img src="[https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0](https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0)" width="80%" alt="image"\>
+<img src="[https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0](https://github.com/user-attachments/assets/09200494-03a9-4b7d-9ffa-ef646d9d51f0)" width="80%" alt="image">
 
 ## 🏗️ 项目结构
 
@@ -194,13 +194,13 @@ memoryos/
 └── utils.py            # 库中使用的工具函数
 ```
 
-\<span id='pypi-mode'/\>
+<span id='pypi-mode'/>
 
-## 📖 MemoryOS\_PyPi 上手指南
+## 📖 MemoryOS_PyPi 上手指南
 
 ### 环境要求
 
-  * Python \>= 3.10
+  * Python >= 3.10
   * conda create -n MemoryOS python=3.10
   * conda activate MemoryOS
 
@@ -254,7 +254,7 @@ def simple_demo():
             # 支持 Qwen/Qwen3-Embedding-0.6B, BAAI/bge-m3, all-MiniLM-L6-v2
             embedding_model_name="BAAI/bge-m3"
         )
-        print("MemoryOS 初始化成功！\n")
+        print("MemoryOS 初始化成功！n")
     except Exception as e:
         print(f"错误: {e}")
         return
@@ -280,32 +280,32 @@ if __name__ == "__main__":
     simple_demo()
 ```
 
-\<span id='MCP-mode'/\>
+<span id='MCP-mode'/>
 
 ## 📖 MemoryOS-MCP 上手指南
 
 ### 🔧 核心工具
 
-#### 1\. `add_memory`
+#### 1. `add_memory`
 
 将用户与 AI 助手之间的对话内容保存到记忆系统中，以建立持久的对话历史和上下文记录。
 
-#### 2\. `retrieve_memory`
+#### 2. `retrieve_memory`
 
 根据查询从记忆系统中检索相关的历史对话、用户偏好和知识信息，帮助 AI 助手理解用户的需求和背景。
 
-#### 3\. `get_user_profile`
+#### 3. `get_user_profile`
 
 获取从历史对话分析中生成的用户画像，包括用户的个性特征、兴趣偏好和相关知识背景。
 
-### 1\. 安装依赖
+### 1. 安装依赖
 
 ```bash
 cd memoryos-mcp
 pip install -r requirements.txt
 ```
 
-### 2\. 配置
+### 2. 配置
 
 编辑 `config.json`：
 
@@ -321,19 +321,19 @@ pip install -r requirements.txt
 }
 ```
 
-### 3\. 启动服务器
+### 3. 启动服务器
 
 ```bash
 python server_new.py --config config.json
 ```
 
-### 4\. 测试
+### 4. 测试
 
 ```bash
 python test_comprehensive.py
 ```
 
-### 5\. 在 Cline 和其他客户端上配置
+### 5. 在 Cline 和其他客户端上配置
 
 复制 `mcp.json` 文件，并确保文件路径正确。
 
@@ -342,16 +342,16 @@ python test_comprehensive.py
 # 这应该更改为您虚拟环境的 Python 解释器
 ```
 
-## 📖MemoryOS\_Chromadb 上手指南
+## 📖MemoryOS_Chromadb 上手指南
 
-### 1\. 安装依赖
+### 1. 安装依赖
 
 ```bash
 cd memoryos-chromadb
 pip install -r requirements.txt
 ```
 
-### 2\. 测试
+### 2. 测试
 
 ```bash
 # 编辑信息在 comprehensive_test.py 中
@@ -407,7 +407,7 @@ python3 main_loco_parse.py
 python3 evalution_loco.py
 ```
 
-\<span id='todo'/\>
+<span id='todo'/>
 
 ## ☑️ 待办事项
 
@@ -418,13 +418,13 @@ MemoryOS 正在不断发展！以下是即将推出的功能：
 
 有想法或建议吗？欢迎贡献！请随时提交 issues 或 pull requests！🚀
 
-\<span id='doc'/\>
+<span id='doc'/>
 
 ## 📖 文档
 
 更详细的文档即将推出 🚀，我们将在 [文档](https://bai-lab.github.io/MemoryOS/docs) 页面更新。
 
-\<span id='cite'/\>
+<span id='cite'/>
 
 ## 📣 引用
 
@@ -442,9 +442,9 @@ MemoryOS 正在不断发展！以下是即将推出的功能：
 }
 ```
 
-\<span id='related'/\>
+<span id='related'/>
 
-\<span id='community'/\>
+<span id='community'/>
 
 ## 🎯 联系我们
 
@@ -452,12 +452,12 @@ MemoryOS 正在不断发展！以下是即将推出的功能：
 
 🤝 合作与建议: baiting@bupt.edu.cn
 
-📣 关注我们的**微信公众号**，加入**微信群**或 \<img src="[https://img.shields.io/badge/Discord-yellow](https://img.shields.io/badge/Discord-yellow)" alt="Discord"\> [https://discord.gg/SqVj7QvZ](https://discord.gg/SqVj7QvZ) 获取最新动态。
+📣 关注我们的**微信公众号**，加入**微信群**或 <img src="[https://img.shields.io/badge/Discord-yellow](https://img.shields.io/badge/Discord-yellow)" alt="Discord"> [https://discord.gg/SqVj7QvZ](https://discord.gg/SqVj7QvZ) 获取最新动态。
 
-\<div style="display: flex; justify-content: center; gap: 20px;"\>
-\<img src="[https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9](https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9)" alt="百家Agent公众号" width="250"/\>
-\<img src="[https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e](https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e)" alt="微信群二维码" width="250"/\>
-\</div\>
+<div style="display: flex; justify-content: center; gap: 20px;">
+<img src="[https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9](https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9)" alt="百家Agent公众号" width="250"/>
+<img src="[https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e](https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e)" alt="微信群二维码" width="250"/>
+</div>
 
 ## 🌟 Star 历史
 
