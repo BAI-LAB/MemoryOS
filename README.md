@@ -3,6 +3,9 @@
   <img src="https://github.com/user-attachments/assets/eb3b167b-1ace-476e-89dc-1a7891356e0b" alt="logo" width="400"/>
 </div>
 <p align="center">
+    <a href="readme_cn.md" target="_blank">
+    <img src="https://img.shields.io/badge/Readme-中文-blue" alt="Readme:中文">
+  </a>
   <a href="https://arxiv.org/abs/2506.06326">
     <img src="https://img.shields.io/badge/Arxiv-paper-red" alt="Mem0 Discord">
   </a>
