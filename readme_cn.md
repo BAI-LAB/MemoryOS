@@ -1,25 +1,25 @@
 # MemoryOS
 
-\<div align="center"\>
-\<img src="[https://github.com/user-attachments/assets/eb3b167b-1ace-476e-89dc-1a7891356e0b](https://github.com/user-attachments/assets/eb3b167b-1ace-476e-89dc-1a7891356e0b)" alt="logo" width="400"/\>
-\</div\>
-\<p align="center"\>
-\<a href="[https://arxiv.org/abs/2506.06326](https://arxiv.org/abs/2506.06326)"\>
-\<img src="[https://img.shields.io/badge/Arxiv-paper-red](https://img.shields.io/badge/Arxiv-paper-red)" alt="Mem0 Discord"\>
-\</a\>
-\<a href="\#contact-us"\>
-\<img src="[https://img.shields.io/badge/Wechat-群二维码-green](https://img.shields.io/badge/Wechat-群二维码-green)" alt="Mem0 PyPI - Downloads"\>
-\</a\>
-\<a href="[https://www.youtube.com/watch?v=WHQu8fpEOaU](https://www.youtube.com/watch?v=WHQu8fpEOaU)" target="blank"\>
-\<img src="[https://img.shields.io/badge/Youtube-Video-red](https://img.shields.io/badge/Youtube-Video-red)" alt="Npm package"\>
-\</a\>
-\<a href="[https://discord.gg/SqVj7QvZ](https://discord.gg/SqVj7QvZ)" target="\_blank"\>
-\<img src="[https://img.shields.io/badge/Discord-Join\_us-yellow](https://img.shields.io/badge/Discord-Join_us-yellow)" alt="Discord"\>
-\</a\>
-\<a href="[https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)" target="\_blank"\>
-\<img src="[https://img.shields.io/badge/License-Apache\_2.0-blue](https://img.shields.io/badge/License-Apache_2.0-blue)" alt="License: Apache 2.0"\>
-\</a\>
-\</p\>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/eb3b167b-1ace-476e-89dc-1a7891356e0b" alt="logo" width="400"/>
+</div>
+<p align="center">
+  <a href="https://arxiv.org/abs/2506.06326">
+    <img src="https://img.shields.io/badge/Arxiv-paper-red" alt="Mem0 Discord">
+  </a>
+  <a href="#contact-us">
+    <img src="https://img.shields.io/badge/Wechat-群二维码-green" alt="Mem0 PyPI - Downloads">
+  </a>
+  <a href="https://www.youtube.com/watch?v=WHQu8fpEOaU" target="blank">
+    <img src="https://img.shields.io/badge/Youtube-Video-red" alt="Npm package">
+  </a>
+  <a href="https://discord.gg/SqVj7QvZ" target="_blank">
+    <img src="https://img.shields.io/badge/Discord-Join_us-yellow" alt="Discord">
+  </a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">
+    <img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="License: Apache 2.0">
+  </a>
+</p>
 
 \<h5 align="center"\> 🎉 如果您喜欢我们的项目，请在 GitHub 上给我们一个星 ⭐ 以获取最新更新。\</h5\>
 
