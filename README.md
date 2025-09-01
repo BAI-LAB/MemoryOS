@@ -56,12 +56,13 @@
 <span id='news'/>
 
 ## 📣 Latest News
-*   *<mark>[new]</mark>* 🔥🔥 🔥 **[2025-07-15]**: **🔌 Support** for Vector Database [Chromadb](#memoryos_chromadb-getting-started)
-*   *<mark>[new]</mark>* 🔥🔥 🔥 **[2025-07-15]**: **🔌 Integrate** [Docker](#docker-getting-started) into deployment
-*   *<mark>[new]</mark>* 🔥🔥  **[2025-07-14]**: **⚡ Acceleration** of MCP parallelization 
-*   *<mark>[new]</mark>* 🔥🔥  **[2025-07-14]**: **🔌 Support** for BGE-M3 & Qwen3 embeddings on PyPI and MCP.
-*   *<mark>[new]</mark>* 🔥  **[2025-07-09]**: **📊 Evaluation** of the MemoryOS on LoCoMo Dataset: Publicly Available [👉Reproduce](#reproduce).
-*   *<mark>[new]</mark>* 🔥 **[2025-07-08]**: **🏆 New Config Parameter**
+*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-08-21]**: **🎉Accepted**  by EMNLP 2025 main conference!
+*   *<mark>[new]</mark>* 🔥🔥 **[2025-07-15]**: **🔌 Support** for Vector Database [Chromadb](#memoryos_chromadb-getting-started)
+*   *<mark>[new]</mark>* 🔥🔥 **[2025-07-15]**: **🔌 Integrate** [Docker](#docker-getting-started) into deployment
+*   *<mark>[new]</mark>* 🔥 **[2025-07-14]**: **⚡ Acceleration** of MCP parallelization 
+*   *<mark>[new]</mark>*   **[2025-07-14]**: **🔌 Support** for BGE-M3 & Qwen3 embeddings on PyPI and MCP.
+*   *<mark>[new]</mark>*   **[2025-07-09]**: **📊 Evaluation** of the MemoryOS on LoCoMo Dataset: Publicly Available [👉Reproduce](#reproduce).
+*   *<mark>[new]</mark>*  **[2025-07-08]**: **🏆 New Config Parameter**
 *   New parameter configuration: **similarity_threshold**. For configuration file, see 📖 [Documentation](https://bai-lab.github.io/MemoryOS/docs) page.
 *   *<mark>[new]</mark>*   **[2025-07-07]**: **🚀5 Times Faster**
 *   The MemoryOS (PYPI) implementation has been upgraded: **5 times faster** (reduction in latency) through parallelization optimizations.
@@ -465,7 +466,7 @@ BaiJia AI is a research team guided by Associate Professor Bai Ting from Beijing
 
 <div style="display: flex; justify-content: center; gap: 20px;">
   <img src="https://github.com/user-attachments/assets/42651f49-f1f7-444d-9455-718e13ed75e9" alt="百家Agent公众号" width="250"/> 
-  <img src="https://github.com/user-attachments/assets/b1b53846-cfc3-4814-bfa5-8e88b3621b9e" alt="微信群二维码" width="250"/>
+  <img src="https://github.com/user-attachments/assets/a28d33b8-c999-4f96-969e-37d2ef4d6781" alt="微信群二维码" width="250"/>
 
 </div>
 
