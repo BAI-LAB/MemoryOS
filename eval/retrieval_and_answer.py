@@ -22,16 +22,16 @@ class RetrievalAndAnswer:
                     page, overall_score = page_info
                     # 使用最小堆来保持前queue_capacity个最高分项目
                     if len(top_pages_heap) < self.queue_capacity:
-                        heapq.heappush(top_pages_heap, (overall_score, page))
+                        heapq.heappush(top_pages_heap, (overall_score, id(page), page))
                     else:
                         # 如果当前分数高于堆中最小的分数，则替换
                         if overall_score > top_pages_heap[0][0]:
                             heapq.heappop(top_pages_heap)
-                            heapq.heappush(top_pages_heap, (overall_score, page))
+                            heapq.heappush(top_pages_heap, (overall_score, id(page), page))
             
             # 清空并重新填充检索队列，按分数从高到低排序
             self.retrieval_queue.clear()
-            for score, page in sorted(top_pages_heap, key=lambda x: x[0], reverse=True):
+            for score, _, page in sorted(top_pages_heap, key=lambda x: x[0], reverse=True):
                 self.retrieval_queue.append(page)
             
             print(f"检索：中期记忆召回 {len(self.retrieval_queue)} 个 QA 对到检索队列。")
