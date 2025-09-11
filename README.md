@@ -415,7 +415,7 @@ cd MemoryOS/memoryos-playground/memdemo/
 python3 app.py
 ```
 After launching the main interface, fill in the corresponding User ID, OpenAI API Key, Model, and API Base URL.
-<img width="1066" height="645" alt="image" src="https://github.com/user-attachments/assets/b88f965a-cae5-4ba5-8d29-b82f90e2dac9" />
+<img width="645" height="645" alt="image" src="https://github.com/user-attachments/assets/b88f965a-cae5-4ba5-8d29-b82f90e2dac9" />
 
 After entering the system, you can use the Help button to view the functions of each button.
 
