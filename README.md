@@ -56,7 +56,7 @@
 <span id='news'/>
 
 ## 📣 Latest News
-*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-09-11]**: **🚀Open-sourced** the Playground platform!
+*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-09-11]**: **🚀Open-sourced** the [Playground platform](#playground-getting-started)!
 *   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-08-21]**: **🎉Accepted**  by EMNLP 2025 main conference!
 *   *<mark>[new]</mark>* 🔥🔥 **[2025-07-15]**: **🔌 Support** for Vector Database [Chromadb](#memoryos_chromadb-getting-started)
 *   *<mark>[new]</mark>* 🔥🔥 **[2025-07-15]**: **🔌 Integrate** [Docker](#docker-getting-started) into deployment
@@ -405,6 +405,15 @@ docker build -t memoryos .
 
 docker run -it --gpus=all memoryos /bin/bash
 ```
+
+## 📖Playground Getting Started
+
+```bash
+cd MemoryOS/memoryos-playground/memdemo/
+
+python3 app.py
+```
+After launching the main interface, fill in the corresponding User ID, OpenAI API Key, Model, and API Base URL.
 
 ## 🎯Reproduce
 ```bash
