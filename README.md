@@ -174,6 +174,7 @@ All model calls use the OpenAI API interface; you need to supply the API key and
   * <a href='#MCP-mode'>MemoryOS-MCP</a>
   * <a href='#memoryos_chromadb-getting-started'>MemoryOS-chromadb</a>
   * <a href='#docker-getting-started'>Docker</a>
+  * <a href='#playground-getting-started'>Playground</a>
 * <a href='#todo'>☑️ Todo List</a>
 * <a href='#reproduce'>🔬 How to Reproduce the Results in the Paper </a>
 * <a href='#doc'>📖 Documentation </a>
@@ -414,6 +415,8 @@ cd MemoryOS/memoryos-playground/memdemo/
 python3 app.py
 ```
 After launching the main interface, fill in the corresponding User ID, OpenAI API Key, Model, and API Base URL.
+<img width="1066" height="645" alt="image" src="https://github.com/user-attachments/assets/b88f965a-cae5-4ba5-8d29-b82f90e2dac9" />
+
 After entering the system, you can use the Help button to view the functions of each button.
 
 ## 🎯Reproduce
