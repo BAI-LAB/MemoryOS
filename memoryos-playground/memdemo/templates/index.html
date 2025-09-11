@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoryOS Platform - Interactive Memory Visualization</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Add Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            padding: 30px;
+        }
+        
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .memory-section {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+        }
+        
+        .memory-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .memory-title {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: #333;
+        }
+        
+        .capacity-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .memory-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .memory-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .heat-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .heat-low { background: #28a745; }
+        .heat-medium { background: #ffc107; }
+        .heat-high { background: #dc3545; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        .init-section {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .knowledge-item {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            border-left: 4px solid #4caf50;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+        
+        .profile-section {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .knowledge-section {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border-left: 4px solid #9c27b0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .knowledge-section h6 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .timestamp {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+        }
+        
+        .status-connected {
+            background: #28a745;
+        }
+        
+        .status-disconnected {
+            background: #dc3545;
+        }
+
+        /* Markdown rendering styles */
+        .markdown-content {
+            line-height: 1.6;
+        }
+        
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            color: #333;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+        
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin-left: 1.5em;
+            margin-bottom: 1em;
+        }
+        
+        .markdown-content code {
+            background: #f1f3f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid #ddd;
+            margin: 1em 0;
+            padding-left: 1em;
+            color: #666;
+        }
+
+        /* Import memory styles */
+        .import-section {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Keywords display styles */
+        .keywords-display {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 3px solid #2196f3;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+        }
+        
+        .keywords-display i {
+            margin-right: 6px;
+            color: #1976d2;
+        }
+        
+        .keyword-tag {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 0 2px;
+            border: 1px solid #bbdefb;
+        }
+
+        /* Memory tabs styles */
+        .memory-tabs-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .memory-tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .memory-tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .memory-tab-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .memory-tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 -2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .memory-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .memory-tab-content {
+            padding: 20px;
+            background: white;
+            min-height: 200px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .memory-tab-pane {
+            display: none;
+        }
+
+        .memory-tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-header-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-capacity-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Scrollable content areas for long-term memory */
+        .scrollable-content {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        .scrollable-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        }
+
+        /* Firefox scrollbar styles */
+        .scrollable-content {
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f1f1f1;
+        }
+
+        /* Enhanced styling for long-term memory sections */
+        .profile-section .scrollable-content {
+            background: linear-gradient(135deg, #fff8f0, #ffebdd);
+        }
+
+        .knowledge-section .scrollable-content {
+            background: linear-gradient(135deg, #f8f5ff, #ede7f6);
+        }
+
+        /* Personality Analysis Modal Styles */
+        .category-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .category-title {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .traits-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .trait-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .trait-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .trait-item.level-high {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5, #fed7d7);
+        }
+
+        .trait-item.level-medium {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fffbf0, #ffeaa7);
+        }
+
+        .trait-item.level-low {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+        }
+
+        .trait-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .trait-level {
+            font-size: 0.85em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trait-level.high {
+            color: #dc3545;
+        }
+
+        .trait-level.medium {
+            color: #fd7e14;
+        }
+
+        .trait-level.low {
+            color: #28a745;
+        }
+
+        .empty-category {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+
+        /* Language toggle styles */
+        .language-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .language-toggle .btn {
+            min-width: 60px;
+            font-size: 0.8em;
+            padding: 4px 8px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .language-toggle .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <div class="text-center mb-4">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-brain text-primary"></i>
+                    MemoryOS Platform
+                </h1>
+                <p class="lead text-muted">A memory operation system for personalized AI</p>
+            </div>
+
+            <!-- Initialization Section -->
+            <div id="init-section" class="init-section">
+                <!-- Top Navigation Buttons - Only shown on homepage -->
+                <div class="d-flex justify-content-start mb-4">
+                    <a href="https://baijia.online/homepage/index.html" target="_blank" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                    <a href="https://github.com/BAI-LAB/MemoryOS" target="_blank" class="btn btn-outline-dark">
+                        <i class="fab fa-github"></i> Github
+                    </a>
+                </div>
+                <h3 class="mb-4">🔐 System access verification</h3>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <!-- 系统配置输入框 -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-cog"></i> System Configuration
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="userId" class="form-label">User ID</label>
+                                        <input type="text" class="form-control" id="userId" 
+                                               placeholder="Enter your User ID" required>
+                                        <div class="form-text">🆔 Your unique User ID</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="apiKey" class="form-label">OpenAI API Key</label>
+                                        <input type="password" class="form-control" id="apiKey" 
+                                               placeholder="Enter your OpenAI API Key" required>
+                                        <div class="form-text">🔑 Your OpenAI API Key</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="modelName" class="form-label">Model</label>
+                                        <input type="text" class="form-control" id="modelName" 
+                                               placeholder="e.g., gpt-4o-mini" value="gpt-4o-mini" required>
+                                        <div class="form-text">🤖 AI model to use</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="baseUrl" class="form-label">API Base URL</label>
+                                        <input type="text" class="form-control" id="baseUrl" 
+                                               placeholder="e.g., https://api.openai.com/v1" value="https://api.openai.com/v1" required>
+                                        <div class="form-text">🌐 API endpoint URL</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button class="btn btn-primary btn-lg" onclick="initializeMemory()">
+                                <i class="fas fa-unlock"></i> Verify and enter the system
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="loading" id="init-loading">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-3">Verifying invite code and initializing memory system...</p>
+                </div>
+            </div>
+
+            <!-- Main Demo Section -->
+            <div id="demo-section" style="display: none;">
+                <div class="d-flex justify-content-start align-items-center mb-3">
+                    <button class="btn btn-secondary me-2" onclick="goHome()">
+                        <i class="fas fa-home"></i> Homepage
+                    </button>
+                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#helpModal">
+                        <i class="fas fa-question-circle"></i> Help
+                    </button>
+                </div>
+                <div class="row">
+                    <!-- Chat Section -->
+                    <div class="col-lg-6">
+                        <div class="memory-section">
+                            <div class="memory-header">
+                                <h3 class="memory-title">
+                                    <i class="fas fa-comments text-primary"></i> Chat Interface
+                                </h3>
+                                <span class="capacity-badge">Interactive Demo</span>
+                            </div>
+                            
+                            <div id="chat-container" class="chat-container">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-robot fa-2x mb-3"></i>
+                                    <p>Start chatting to see memory operations in action!</p>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                                <button class="btn btn-primary" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Control Panel -->
+                        <div class="memory-section">
+                            <div class="memory-header">
+                                <h4 class="memory-title">
+                                    <i class="fas fa-cogs text-info"></i> Memory Controls
+                                </h4>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                    <button class="btn btn-info w-100" onclick="showPersonalityAnalysis()">
+                                        <i class="fas fa-user-chart"></i>  Analysis
+                                    </button>
+                                </div>
+                                <div class="col-3">
+                                    <button class="btn btn-warning w-100" onclick="triggerAnalysis()">
+                                        <i class="fas fa-brain"></i> Update
+                                    </button>
+                                </div>
+                                <div class="col-3">
+                                    <button class="btn btn-success w-100" onclick="showImportModal()">
+                                        <i class="fas fa-upload"></i> Import
+                                    </button>
+                                </div>
+                                <div class="col-3">
+                                    <button class="btn btn-danger w-100" onclick="clearMemory()">
+                                        <i class="fas fa-trash"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Memory Visualization Section -->
+                    <div class="col-lg-6">
+                        <!-- Memory Tabs Container -->
+                        <div class="memory-tabs-container">
+                            <!-- Tab Navigation -->
+                            <div class="memory-tab-nav">
+                                <button class="memory-tab-btn active" onclick="switchMemoryTab('short-term')">
+                                    <i class="fas fa-clock text-warning"></i> Short-term
+                                </button>
+                                <button class="memory-tab-btn" onclick="switchMemoryTab('mid-term')">
+                                    <i class="fas fa-fire text-danger"></i> Mid-term
+                                </button>
+                                <button class="memory-tab-btn" onclick="switchMemoryTab('long-term')">
+                                    <i class="fas fa-database text-success"></i> Long-term
+                                </button>
+                            </div>
+                            
+                            <!-- Tab Content -->
+                            <div class="memory-tab-content">
+                                <!-- Short-term Memory Tab -->
+                                <div id="short-term-tab" class="memory-tab-pane active">
+                                    <div class="tab-header-info">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-clock text-warning"></i> Short-term Memory
+                                        </h5>
+                                        <span class="tab-capacity-badge" id="short-term-capacity">0/5</span>
+                                    </div>
+                                    <div id="short-term-content">
+                                        <p class="text-muted text-center">No short-term memories yet</p>
+                                    </div>
+                                </div>
+
+                                <!-- Mid-term Memory Tab -->
+                                <div id="mid-term-tab" class="memory-tab-pane">
+                                    <div class="tab-header-info">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-fire text-danger"></i> Mid-term Memory
+                                        </h5>
+                                        <span class="tab-capacity-badge" id="mid-term-capacity">0/20</span>
+                                    </div>
+                                    <div id="mid-term-content">
+                                        <p class="text-muted text-center">No mid-term segments yet</p>
+                                    </div>
+                                </div>
+
+                                <!-- Long-term Memory Tab -->
+                                <div id="long-term-tab" class="memory-tab-pane">
+                                    <div class="tab-header-info">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-database text-success"></i> Long-term Memory
+                                        </h5>
+                                        <span class="tab-capacity-badge">Persistent</span>
+                                    </div>
+                                    <div id="long-term-content">
+                                        <div class="profile-section">
+                                            <h6><i class="fas fa-user text-primary"></i> User Profile</h6>
+                                            <div class="scrollable-content">
+                                                <div id="user-profile" class="markdown-content">No profile data yet</div>
+                                            </div>
+                                        </div>
+                                        <div class="knowledge-section mb-3">
+                                            <h6><i class="fas fa-lightbulb text-warning"></i> User Knowledge</h6>
+                                            <div class="scrollable-content">
+                                                <div id="user-knowledge">No user knowledge yet</div>
+                                            </div>
+                                        </div>
+                                        <div class="knowledge-section">
+                                            <h6><i class="fas fa-robot text-info"></i> Assistant Knowledge</h6>
+                                            <div class="scrollable-content">
+                                                <div id="assistant-knowledge">No assistant knowledge yet</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">
+                        <i class="fas fa-question-circle"></i> 
+                        <span id="help-title-zh">帮助文档</span>
+                        <span id="help-title-en" style="display: none;">Help Documentation</span>
+                    </h5>
+                    <div class="language-toggle">
+                        <button type="button" class="btn btn-sm btn-primary me-1" id="btn-chinese" onclick="switchHelpLanguage('zh')">中文</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="btn-english" onclick="switchHelpLanguage('en')">English</button>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Chinese Content -->
+                    <div id="help-content-zh">
+                        <h4><i class="fas fa-cogs text-info"></i> 记忆控制面板</h4>
+                        <p>这些按钮允许您与AI的记忆系统进行交互和管理。</p>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>画像分析 (Analysis):</strong> 基于长期记忆中用户画像的性格特质分析视图。您的互动越多，这个分析就越准确。</li>
+                            <li class="list-group-item"><strong>强制更新 (Update):</strong> 系统将处理中期记忆中"热度"最高的记忆片段，并将其整合到长期记忆。这个过程通常在某个记忆片段足够"热"时自动触发，您可以使用此按钮来加速这个过程。（注意一定要在中期记忆里有内容再进行更新）</li>
+                            <li class="list-group-item"><strong>导入记忆 (Import):</strong> 允许您以JSON格式批量导入过去的对话，以快速填充AI的记忆库，便于冷启动。</li>
+                            <li class="list-group-item"><strong>清除记忆 (Clear):</strong> 清除当前用户（基于您的邀请码）的所有记忆（短期、中期和长期），让您可以从一个全新的状态开始。</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- English Content -->
+                    <div id="help-content-en" style="display: none;">
+                        <h4><i class="fas fa-cogs text-info"></i> Memory Control Panel</h4>
+                        <p>These buttons allow you to interact with and manage the AI's memory system.</p>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Personality Analysis:</strong> A personality trait analysis view based on the user profile in long-term memory. The more you interact, the more accurate this analysis becomes.</li>
+                            <li class="list-group-item"><strong>Force Update:</strong> The system will process the memory segments with the highest "heat" in mid-term memory and integrate them into long-term memory. This process usually triggers automatically when a memory segment is "hot" enough, but you can use this button to accelerate the process. (Note: Make sure there is content in mid-term memory before updating)</li>
+                            <li class="list-group-item"><strong>Import Memory:</strong> Allows you to bulk import past conversations in JSON format to quickly populate the AI's memory bank, facilitating cold start.</li>
+                            <li class="list-group-item"><strong>Clear Memory:</strong> Clear all memories (short-term, mid-term, and long-term) for the current user (based on your invite code), allowing you to start from a completely fresh state.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close-btn-zh">关闭</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close-btn-en" style="display: none;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Memory Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">
+                        <i class="fas fa-upload text-success"></i> Import Memory Conversations
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="import-section">
+                        <h6><i class="fas fa-info-circle"></i> How to format conversations:</h6>
+                        <p>Paste your conversations in JSON format. Each conversation should have "user_input", "agent_response", and optionally "timestamp".</p>
+                        <p><strong>Example format:</strong></p>
+                        <code>[
+                            {"user_input": "Hello", "agent_response": "Hi there!", "timestamp": "2024-01-15 10:00:00"},
+                            {"user_input": "How are you?", "agent_response": "I'm doing great!", "timestamp": "2024-01-15 10:01:00"}
+                        ]</code>
+                    </div>
+                    <div class="mb-3">
+                        <label for="conversationData" class="form-label">Conversation Data (JSON)</label>
+                        <textarea class="form-control" id="conversationData" rows="10" placeholder="Paste your conversation data here in JSON format..."></textarea>
+                    </div>
+                    <div id="import-loading" class="loading">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-3">Importing conversations...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="importConversations()">
+                        <i class="fas fa-upload"></i> Import Conversations
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personality Analysis Modal -->
+    <div class="modal fade" id="personalityModal" tabindex="-1" aria-labelledby="personalityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personalityModalLabel">
+                        <i class="fas fa-user-chart text-info"></i> 用户画像分析
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="personality-loading" class="loading text-center">
+                        <div class="spinner-border text-info" role="status"></div>
+                        <p class="mt-3">正在分析用户画像...</p>
+                    </div>
+                    <div id="personality-results" style="display: none;">
+                        <div class="row">
+                            <!-- Psychological Model Category -->
+                            <div class="col-md-4 mb-4">
+                                <div class="category-section">
+                                    <h6 class="category-title">
+                                        <i class="fas fa-brain text-primary"></i> Psychological label
+                                    </h6>
+                                    <div id="psychological-traits" class="traits-container">
+                                        <!-- Traits will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            
+                            <!-- Content Platform Interest Tags Category -->
+                            <div class="col-md-4 mb-4">
+                                <div class="category-section">
+                                    <h6 class="category-title">
+                                        <i class="fas fa-tags text-warning"></i> Interest label
+                                    </h6>
+                                    <div id="interest-traits" class="traits-container">
+                                        <!-- Traits will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                                                        <!-- AI Alignment Dimensions Category -->
+                            <div class="col-md-4 mb-4">
+                                <div class="category-section">
+                                    <h6 class="category-title">
+                                        <i class="fas fa-robot text-success"></i> Interaction preference
+                                    </h6>
+                                    <div id="ai-alignment-traits" class="traits-container">
+                                        <!-- Traits will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="no-traits-message" class="text-center text-muted" style="display: none;">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <p>暂未发现明确的个性特征条目。请增加更多互动以便进行个性分析。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-info" onclick="refreshPersonalityAnalysis()">
+                        <i class="fas fa-sync"></i> 刷新分析
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Indicator -->
+    <div id="status-indicator" class="status-indicator status-disconnected">
+        <i class="fas fa-circle"></i> 未连接
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isInitialized = false;
+        let sessionId = null;
+
+        function goHome() {
+            // 重新加载页面，这将清除客户端状态并返回到初始的邀请码输入界面
+            location.reload();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function handleInviteCodeKeyPress(event) {
+            if (event.key === 'Enter') {
+                initializeMemory();
+            }
+        }
+
+        // Memory tab switching function
+        function switchMemoryTab(tabName) {
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.memory-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Hide all tab panes
+            document.querySelectorAll('.memory-tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            // Activate clicked tab button
+            event.target.classList.add('active');
+            
+            // Show corresponding tab pane
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        async function initializeMemory() {
+            const userId = document.getElementById('userId').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const modelName = document.getElementById('modelName').value.trim();
+
+            if (!userId) {
+                alert('请输入 User ID');
+                return;
+            }
+            if (!apiKey) {
+                alert('请输入 OpenAI API Key');
+                return;
+            }
+            if (!baseUrl) {
+                alert('请输入 API Base URL');
+                return;
+            }
+            if (!modelName) {
+                alert('请输入模型名称');
+                return;
+            }
+
+            document.getElementById('init-loading').style.display = 'block';
+
+            try {
+                const response = await fetch('/init_memory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        api_key: apiKey,
+                        base_url: baseUrl,
+                        model_name: modelName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionId = data.session_id;
+                    isInitialized = true;
+                    document.getElementById('init-section').style.display = 'none';
+                    document.getElementById('demo-section').style.display = 'block';
+                    document.getElementById('status-indicator').className = 'status-indicator status-connected';
+                    document.getElementById('status-indicator').innerHTML = `<i class="fas fa-circle"></i> 已连接 (${data.user_id})`;
+                    
+                    // Show configuration info
+                    console.log(`初始化成功 - 邀请码: ${data.invite_code}, 用户ID: ${data.user_id}, 助手ID: ${data.assistant_id}`);
+                    console.log(`系统配置 - 模型: ${data.model}, API地址: ${data.base_url}`);
+                    
+                    updateMemoryVisualization();
+                } else {
+                    alert('验证失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('网络错误: ' + error.message);
+            } finally {
+                document.getElementById('init-loading').style.display = 'none';
+            }
+        }
+
+        async function sendMessage() {
+            if (!isInitialized) {
+                alert('Please initialize the memory system first');
+                return;
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            messageInput.value = '';
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
+            typingDiv.id = 'typing-indicator';
+            document.getElementById('chat-container').appendChild(typingDiv);
+            document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+
+                if (data.response) {
+                    addMessageToChat(data.response, 'bot');
+                    updateMemoryVisualization();
+                } else {
+                    addMessageToChat('Error: ' + data.error, 'bot');
+                }
+            } catch (error) {
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                addMessageToChat('Network error: ' + error.message, 'bot');
+            }
+        }
+
+        function addMessageToChat(message, sender) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `
+                ${message}
+                <div class="timestamp">${timestamp}</div>
+            `;
+
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function updateMemoryVisualization() {
+            if (!isInitialized) return;
+
+            try {
+                const response = await fetch('/memory_state');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error('Memory state error:', data.error);
+                    return;
+                }
+
+                // Update short-term memory
+                const shortTermCapacity = document.getElementById('short-term-capacity');
+                shortTermCapacity.textContent = `${data.short_term.current_count}/${data.short_term.capacity}`;
+                
+                const shortTermContent = document.getElementById('short-term-content');
+                if (data.short_term.memories.length === 0) {
+                    shortTermContent.innerHTML = '<p class="text-muted text-center">No short-term memories yet</p>';
+                } else {
+                    shortTermContent.innerHTML = data.short_term.memories.map(memory => `
+                        <div class="memory-item">
+                            <strong>Q:</strong> ${memory.user_input}<br>
+                            <strong>A:</strong> ${memory.agent_response}
+                            <div class="timestamp">${memory.timestamp}</div>
+                        </div>
+                    `).join('');
+                }
+
+                // Update mid-term memory
+                const midTermCapacity = document.getElementById('mid-term-capacity');
+                midTermCapacity.textContent = `${data.mid_term.current_count}/${data.mid_term.capacity}`;
+                
+                const midTermContent = document.getElementById('mid-term-content');
+                if (data.mid_term.sessions.length === 0) {
+                    midTermContent.innerHTML = '<p class="text-muted text-center">No mid-term segments yet</p>';
+                } else {
+                    midTermContent.innerHTML = data.mid_term.sessions.map(session => {
+                        const heatClass = session.heat >= data.mid_term.heat_threshold ? 'heat-high' : 
+                                         session.heat >= 1.0 ? 'heat-medium' : 'heat-low';
+                        
+                        // Format keywords for display
+                        const keywordsHtml = session.keywords && session.keywords.length > 0 
+                            ? `<div class="keywords-display"><i class="fas fa-tags"></i> ${session.keywords.join(', ')}</div>`
+                            : '';
+                        
+                        return `
+                            <div class="memory-item">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="heat-indicator ${heatClass}"></span>
+                                    <strong>Segment</strong>
+                                    <span class="ms-auto badge bg-secondary">Heat: ${session.heat.toFixed(2)}</span>
+                                </div>
+                                ${keywordsHtml}
+                                <div class="small text-muted mb-1">
+                                    Visits: ${session.visit_count} | Pages: ${session.page_count}
+                                </div>
+                                <div>${session.summary}</div>
+                                <div class="timestamp">${session.last_visit}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // Update long-term memory with Markdown rendering
+                const userProfile = document.getElementById('user-profile');
+                const profileData = data.long_term.user_profile === 'None' ? 'No profile data yet' : data.long_term.user_profile;
+                
+                // Render markdown if it's not the default message
+                if (profileData !== 'No profile data yet') {
+                    userProfile.innerHTML = marked.parse(profileData);
+                } else {
+                    userProfile.textContent = profileData;
+                }
+
+                const userKnowledge = document.getElementById('user-knowledge');
+                if (data.long_term.user_knowledge.length === 0) {
+                    userKnowledge.innerHTML = '<p class="text-muted">No user knowledge yet</p>';
+                } else {
+                    userKnowledge.innerHTML = data.long_term.user_knowledge.map(knowledge => `
+                        <div class="knowledge-item">${knowledge}</div>
+                    `).join('');
+                }
+
+                const assistantKnowledge = document.getElementById('assistant-knowledge');
+                if (data.long_term.assistant_knowledge.length === 0) {
+                    assistantKnowledge.innerHTML = '<p class="text-muted">No assistant knowledge yet</p>';
+                } else {
+                    assistantKnowledge.innerHTML = data.long_term.assistant_knowledge.map(knowledge => `
+                        <div class="knowledge-item">${knowledge}</div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Error updating memory visualization:', error);
+            }
+        }
+
+        async function triggerAnalysis() {
+            if (!isInitialized) {
+                alert('Please initialize the memory system first');
+                return;
+            }
+
+            try {
+                const response = await fetch('/trigger_analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Memory update triggered successfully!');
+                    updateMemoryVisualization();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+
+        function showImportModal() {
+            if (!isInitialized) {
+                alert('Please initialize the memory system first');
+                return;
+            }
+            const modal = new bootstrap.Modal(document.getElementById('importModal'));
+            modal.show();
+        }
+
+        async function importConversations() {
+            const conversationData = document.getElementById('conversationData').value.trim();
+            
+            if (!conversationData) {
+                alert('Please enter conversation data');
+                return;
+            }
+
+            try {
+                // Validate JSON format
+                const conversations = JSON.parse(conversationData);
+                
+                if (!Array.isArray(conversations)) {
+                    alert('Conversation data must be an array');
+                    return;
+                }
+
+                // Validate each conversation
+                for (let i = 0; i < conversations.length; i++) {
+                    const conv = conversations[i];
+                    if (!conv.user_input || !conv.agent_response) {
+                        alert(`Conversation ${i + 1} is missing user_input or agent_response`);
+                        return;
+                    }
+                }
+
+                document.getElementById('import-loading').style.display = 'block';
+
+                const response = await fetch('/import_conversations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        conversations: conversations
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Successfully imported ${data.imported_count} conversations!`);
+                    document.getElementById('conversationData').value = '';
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
+                    modal.hide();
+                    
+                    // Update chat display
+                    const chatContainer = document.getElementById('chat-container');
+                    chatContainer.innerHTML = '';
+                    
+                    // Add imported conversations to chat display
+                    conversations.forEach(conv => {
+                        addMessageToChat(conv.user_input, 'user');
+                        addMessageToChat(conv.agent_response, 'bot');
+                    });
+                    
+                    updateMemoryVisualization();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    alert('Invalid JSON format. Please check your conversation data.');
+                } else {
+                    alert('Network error: ' + error.message);
+                }
+            } finally {
+                document.getElementById('import-loading').style.display = 'none';
+            }
+        }
+
+        async function clearMemory() {
+            if (!isInitialized) {
+                alert('Please initialize the memory system first');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to clear all memories? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/clear_memory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('All memories cleared successfully!');
+                    updateMemoryVisualization();
+                    
+                    // Clear chat container
+                    document.getElementById('chat-container').innerHTML = `
+                        <div class="text-center text-muted">
+                            <i class="fas fa-robot fa-2x mb-3"></i>
+                            <p>Memory cleared! Start chatting to see memory operations in action!</p>
+                        </div>
+                    `;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+
+        async function showPersonalityAnalysis() {
+            if (!isInitialized) {
+                alert('Please initialize the memory system first');
+                return;
+            }
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('personalityModal'));
+            modal.show();
+
+            // Show loading and hide results
+            document.getElementById('personality-loading').style.display = 'block';
+            document.getElementById('personality-results').style.display = 'none';
+
+            try {
+                const response = await fetch('/personality_analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayPersonalityResults(data.personality_analysis);
+                } else {
+                    alert('Error: ' + data.error);
+                    // Close modal on error
+                    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('personalityModal'));
+                    modalInstance.hide();
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+                // Close modal on error
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('personalityModal'));
+                modalInstance.hide();
+            } finally {
+                document.getElementById('personality-loading').style.display = 'none';
+            }
+        }
+
+        function displayPersonalityResults(personalityAnalysis) {
+            // Hide loading and show results
+            document.getElementById('personality-loading').style.display = 'none';
+            document.getElementById('personality-results').style.display = 'block';
+
+            // Map categories to their container IDs
+            const categoryMap = {
+                'Psychological Model': 'psychological-traits',
+                'AI Alignment Dimensions': 'ai-alignment-traits',
+                'Content Platform Interest Tags': 'interest-traits'
+            };
+
+            let hasAnyTraits = false;
+
+            // Clear all containers first
+            Object.values(categoryMap).forEach(containerId => {
+                document.getElementById(containerId).innerHTML = '';
+            });
+
+            // Populate each category
+            for (const [categoryName, containerId] of Object.entries(categoryMap)) {
+                const container = document.getElementById(containerId);
+                const traits = personalityAnalysis[categoryName] || [];
+
+                if (traits.length > 0) {
+                    hasAnyTraits = true;
+                    container.innerHTML = traits.map(trait => {
+                        const levelClass = trait.level.toLowerCase();
+                        return `
+                            <div class="trait-item level-${levelClass}">
+                                <div class="trait-name">${trait.dimension}</div>
+                                <div class="trait-level ${levelClass}">${trait.level}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-category">该分类下暂无特征</div>';
+                }
+            }
+
+            // Show or hide the no traits message
+            document.getElementById('no-traits-message').style.display = hasAnyTraits ? 'none' : 'block';
+        }
+
+        async function refreshPersonalityAnalysis() {
+            // Hide results and show loading
+            document.getElementById('personality-results').style.display = 'none';
+            document.getElementById('personality-loading').style.display = 'block';
+
+            try {
+                const response = await fetch('/personality_analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayPersonalityResults(data.personality_analysis);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            } finally {
+                document.getElementById('personality-loading').style.display = 'none';
+            }
+        }
+
+        // Auto-refresh memory visualization every 10 seconds
+        setInterval(() => {
+            if (isInitialized) {
+                updateMemoryVisualization();
+            }
+        }, 10000);
+
+        // Language switching function for help modal
+        function switchHelpLanguage(language) {
+            if (language === 'zh') {
+                // Show Chinese content
+                document.getElementById('help-title-zh').style.display = 'inline';
+                document.getElementById('help-title-en').style.display = 'none';
+                document.getElementById('help-content-zh').style.display = 'block';
+                document.getElementById('help-content-en').style.display = 'none';
+                document.getElementById('close-btn-zh').style.display = 'inline-block';
+                document.getElementById('close-btn-en').style.display = 'none';
+                
+                // Update button styles
+                document.getElementById('btn-chinese').className = 'btn btn-sm btn-primary me-1';
+                document.getElementById('btn-english').className = 'btn btn-sm btn-outline-primary';
+            } else if (language === 'en') {
+                // Show English content
+                document.getElementById('help-title-zh').style.display = 'none';
+                document.getElementById('help-title-en').style.display = 'inline';
+                document.getElementById('help-content-zh').style.display = 'none';
+                document.getElementById('help-content-en').style.display = 'block';
+                document.getElementById('close-btn-zh').style.display = 'none';
+                document.getElementById('close-btn-en').style.display = 'inline-block';
+                
+                // Update button styles
+                document.getElementById('btn-chinese').className = 'btn btn-sm btn-outline-primary me-1';
+                document.getElementById('btn-english').className = 'btn btn-sm btn-primary';
+            }
+        }
+    </script>
+</body>
+</html>
