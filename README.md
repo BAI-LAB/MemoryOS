@@ -414,6 +414,7 @@ cd MemoryOS/memoryos-playground/memdemo/
 python3 app.py
 ```
 After launching the main interface, fill in the corresponding User ID, OpenAI API Key, Model, and API Base URL.
+After entering the system, you can use the Help button to view the functions of each button.
 
 ## 🎯Reproduce
 ```bash
