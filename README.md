@@ -417,9 +417,11 @@ python3 app.py
 After launching the main interface, fill in the corresponding User ID, OpenAI API Key, Model, and API Base URL.
 <img width="645" height="645" alt="image" src="https://github.com/user-attachments/assets/b88f965a-cae5-4ba5-8d29-b82f90e2dac9" />
 
-After entering the system, you can use the Help button to view the functions of each button.
-<!--## Demo-->
-[![Watch the video](https://img.youtube.com/vi/y9Igs0FnX_M/maxresdefault.jpg)](https://youtu.be/y9Igs0FnX_M)
+After entering the system, you can use the Help button to view the functions of each button. 
+
+The user's memory is stored under MemoryOS-main/memoryos-playground/memdemo/data
+
+<img width="645" height="645" alt="image" src="https://github.com/user-attachments/assets/770857d7-5ea2-46b3-8f5c-8150c32d942a" />
 
 ## 🎯Reproduce
 ```bash
