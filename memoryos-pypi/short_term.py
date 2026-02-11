@@ -1,5 +1,6 @@
 import json
 from collections import deque
+import threading
 try:
     from .utils import get_timestamp, ensure_directory_exists
 except ImportError:
@@ -11,6 +12,7 @@ class ShortTermMemory:
         self.file_path = file_path
         ensure_directory_exists(self.file_path)
         self.memory = deque(maxlen=max_capacity)
+        self.lock = threading.Lock()
         self.load()
 
     def add_qa_pair(self, qa_pair):
@@ -38,8 +40,9 @@ class ShortTermMemory:
 
     def save(self):
         try:
-            with open(self.file_path, "w", encoding="utf-8") as f:
-                json.dump(list(self.memory), f, ensure_ascii=False, indent=2)
+            with self.lock:
+                with open(self.file_path, "w", encoding="utf-8") as f:
+                    json.dump(list(self.memory), f, ensure_ascii=False, indent=2)
         except IOError as e:
             print(f"Error saving ShortTermMemory to {self.file_path}: {e}")
 

@@ -2,6 +2,7 @@ import json
 import numpy as np
 import faiss
 from collections import deque
+import threading
 try:
     from .utils import get_timestamp, get_embedding, normalize_vector, ensure_directory_exists
 except ImportError:
@@ -19,6 +20,7 @@ class LongTermMemory:
 
         self.embedding_model_name = embedding_model_name
         self.embedding_model_kwargs = embedding_model_kwargs if embedding_model_kwargs is not None else {}
+        self.lock = threading.Lock()
         self.load()
 
     def update_user_profile(self, user_id, new_data, merge=True):
@@ -144,8 +146,9 @@ class LongTermMemory:
             "assistant_knowledge": list(self.assistant_knowledge)
         }
         try:
-            with open(self.file_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
+            with self.lock:
+                with open(self.file_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
         except IOError as e:
             print(f"Error saving LongTermMemory to {self.file_path}: {e}")
 
