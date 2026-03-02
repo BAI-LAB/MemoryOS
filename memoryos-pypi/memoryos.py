@@ -358,5 +358,33 @@ class Memoryos:
         self._trigger_profile_and_knowledge_update_if_needed()
         self.mid_term_heat_threshold = original_threshold # Restore original threshold
 
+    def get_memory_stats(self) -> dict:
+        """
+        Retrieve the current storage statistics of the memory system.
+        Provides read-only monitoring capabilities with minimal intrusion, allowing 
+        developers or clients to check the load status of different memory layers.
+        """
+        stats = {
+            "user_id": self.user_id,
+            "short_term_count": len(self.short_term_memory.get_all()),
+            "mid_term_sessions_count": len(self.mid_term_memory.sessions),
+        }
+        
+        # Safely attempt to retrieve long-term memory status to prevent execution failures
+        try:
+            # Verify the existence and validity of the user profile
+            profile = self.user_long_term_memory.get_raw_user_profile(self.user_id)
+            stats["has_user_profile"] = bool(profile and profile.lower() != "none" and "No detailed profile" not in profile)
+            
+            # Calculate the total number of assistant knowledge entries
+            assistant_knowledge = self.get_assistant_knowledge_summary()
+            stats["assistant_knowledge_count"] = len(assistant_knowledge) if isinstance(assistant_knowledge, list) else 0
+            
+        except Exception as e:
+            # Catch any unexpected schema or attribute errors gracefully
+            stats["long_term_stats_error"] = str(e)
+            
+        return stats
+
     def __repr__(self):
         return f"<Memoryos user_id='{self.user_id}' assistant_id='{self.assistant_id}' data_path='{self.data_storage_path}'>" 
