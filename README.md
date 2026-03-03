@@ -56,11 +56,12 @@
 <span id='news'/>
 
 ## 📣 Latest News
-*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-09-11]**: **🚀Open-sourced** the [Playground platform](#playground-getting-started)!
-*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-08-21]**: **🎉Accepted**  by EMNLP 2025 main conference!
-*   *<mark>[new]</mark>* 🔥🔥 **[2025-07-15]**: **🔌 Support** for Vector Database [Chromadb](#memoryos_chromadb-getting-started)
-*   *<mark>[new]</mark>* 🔥🔥 **[2025-07-15]**: **🔌 Integrate** [Docker](#docker-getting-started) into deployment
-*   *<mark>[new]</mark>* 🔥 **[2025-07-14]**: **⚡ Acceleration** of MCP parallelization 
+*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-09-11]**: **✨Released** [Survey on AI Memory: Theories, Taxonomies, Evaluations, and Emerging Trends](https://github.com/BAI-LAB/Survey-on-AI-Memory)!
+*   *<mark>[new]</mark>* 🔥🔥  **[2025-09-11]**: **🚀Open-sourced** the [Playground platform](#playground-getting-started)!
+*   *<mark>[new]</mark>* 🔥🔥  **[2025-08-21]**: **🎉Accepted**  by EMNLP 2025 main conference!
+*   *<mark>[new]</mark>* 🔥 **[2025-07-15]**: **🔌 Support** for Vector Database [Chromadb](#memoryos_chromadb-getting-started)
+*   *<mark>[new]</mark>* 🔥 **[2025-07-15]**: **🔌 Integrate** [Docker](#docker-getting-started) into deployment
+*   *<mark>[new]</mark>*   **[2025-07-14]**: **⚡ Acceleration** of MCP parallelization 
 *   *<mark>[new]</mark>*   **[2025-07-14]**: **🔌 Support** for BGE-M3 & Qwen3 embeddings on PyPI and MCP.
 *   *<mark>[new]</mark>*   **[2025-07-09]**: **📊 Evaluation** of the MemoryOS on LoCoMo Dataset: Publicly Available [👉Reproduce](#reproduce).
 *   *<mark>[new]</mark>*  **[2025-07-08]**: **🏆 New Config Parameter**
