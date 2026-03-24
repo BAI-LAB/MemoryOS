@@ -67,7 +67,9 @@ Welcome to our **Memory Family**, a research line dedicated to exploring AI Memo
 > **TL;DR:** Introduces experiential memory into deep search systems, enabling models to learn from successful reasoning trajectories and improve search efficiency.  
 > 📄 Paper: https://arxiv.org/abs/2512.06653
 
-
+> [**Memory OS of AI Agent**](https://arxiv.org/abs/2506.06326)  
+> **TL;DR:** Proposes a memory operating system for AI agents that manages short-term, mid-term, and long-term personal memory through hierarchical storage, dynamic updating, retrieval, and generation, improving coherence and personalization in long conversations.  
+> 📄 Paper: https://arxiv.org/abs/2506.06326
 
 ## 📣 Latest News
 *   *<mark>[new]</mark>* 🔥🔥🔥  **[2026-01-15]**: **✨Released** [Survey on AI Memory: Theories, Taxonomies, Evaluations, and Emerging Trends](https://github.com/BAI-LAB/Survey-on-AI-Memory)!
