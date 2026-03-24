@@ -55,6 +55,20 @@
 
 <span id='news'/>
 
+# 🧠 Memory Family 
+
+Welcome to our **Memory Family**, a research line dedicated to exploring AI Memory.
+
+> [**Survey on AI Memory: Theories, Taxonomies, Evaluations, and Emerging Trends**](http://github.com/BAI-LAB/Survey-on-AI-Memory/blob/main/Survey%20on%20AI%20Memory.pdf)  
+> **TL;DR:** Provides a unified theoretical framework for AI Memory, introducing a comprehensive taxonomy and systematically analyzing memory mechanisms, applications, and evaluation methods.  
+> 📄 Paper: http://github.com/BAI-LAB/Survey-on-AI-Memory/blob/main/Survey%20on%20AI%20Memory.pdf
+
+> [**LightSearcher: Efficient DeepSearch via Experiential Memory**](https://arxiv.org/abs/2512.06653)  
+> **TL;DR:** Introduces experiential memory into deep search systems, enabling models to learn from successful reasoning trajectories and improve search efficiency.  
+> 📄 Paper: https://arxiv.org/abs/2512.06653
+
+
+
 ## 📣 Latest News
 *   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-09-11]**: **✨Released** [Survey on AI Memory: Theories, Taxonomies, Evaluations, and Emerging Trends](https://github.com/BAI-LAB/Survey-on-AI-Memory)!
 *   *<mark>[new]</mark>* 🔥🔥  **[2025-09-11]**: **🚀Open-sourced** the [Playground platform](#playground-getting-started)!
