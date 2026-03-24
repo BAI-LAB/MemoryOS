@@ -70,7 +70,7 @@ Welcome to our **Memory Family**, a research line dedicated to exploring AI Memo
 
 
 ## 📣 Latest News
-*   *<mark>[new]</mark>* 🔥🔥🔥  **[2025-09-11]**: **✨Released** [Survey on AI Memory: Theories, Taxonomies, Evaluations, and Emerging Trends](https://github.com/BAI-LAB/Survey-on-AI-Memory)!
+*   *<mark>[new]</mark>* 🔥🔥🔥  **[2026-01-15]**: **✨Released** [Survey on AI Memory: Theories, Taxonomies, Evaluations, and Emerging Trends](https://github.com/BAI-LAB/Survey-on-AI-Memory)!
 *   *<mark>[new]</mark>* 🔥🔥  **[2025-09-11]**: **🚀Open-sourced** the [Playground platform](#playground-getting-started)!
 *   *<mark>[new]</mark>* 🔥🔥  **[2025-08-21]**: **🎉Accepted**  by EMNLP 2025 main conference!
 *   *<mark>[new]</mark>* 🔥 **[2025-07-15]**: **🔌 Support** for Vector Database [Chromadb](#memoryos_chromadb-getting-started)
