@@ -249,22 +249,21 @@ memoryos/
 
 ### Prerequisites
 
-*   Python >= 3.10
-*   conda create -n MemoryOS python=3.10
-*   conda activate MemoryOS
+*   [uv](https://docs.astral.sh/uv/) (Python version and package manager)
+*   `uv` will automatically install the correct Python version (>= 3.10)
 
 ### Installation
 
 #### Download from PyPi
 ```bash
-pip install memoryos-pro -i https://pypi.org/simple
+uv pip install memoryos-pro
 ```
 #### Download from GitHub (latest version)
 
 ```bash
 git clone https://github.com/BAI-LAB/MemoryOS.git
 cd MemoryOS/memoryos-pypi
-pip install -r requirements.txt
+uv sync
 ```
 
 
@@ -347,7 +346,7 @@ Obtains a user profile generated from the analysis of historical dialogues, incl
 ### 1. Install dependencies
 ```bash
 cd memoryos-mcp
-pip install -r requirements.txt
+uv sync
 ```
 ### 2. configuration
 
@@ -365,24 +364,24 @@ Edit `config.json`：
 ```
 ### 3. Start the server
 ```bash
-python server_new.py --config config.json
+uv run python server_new.py --config config.json
 ```
 ### 4. Test
 ```bash
-python test_comprehensive.py
+uv run python test_comprehensive.py
 ```
 ### 5. Configure it on Cline and other clients
 Copy the mcp.json file over, and make sure the file path is correct.
 ```bash
-command": "/root/miniconda3/envs/memos/bin/python"
-#This should be changed to the Python interpreter of your virtual environment
+"command": "uv"
+"args": ["run", "--project", "<path-to-memoryos-mcp>", "python", "<path-to-memoryos-mcp>/server_new.py", "--config", "<path-to-memoryos-mcp>/config.json"]
 ```
 ## 📖MemoryOS_Chromadb Getting Started
 
 ### 1. Install dependencies
 ```bash
 cd memoryos-chromadb
-pip install -r requirements.txt
+uv sync
 ```
 ### 2. Test
 ```bash
@@ -399,7 +398,7 @@ The edit information is in comprehensive_test.py
         mid_term_similarity_threshold=0.7,
         short_term_capacity=2
     )
-python3 comprehensive_test.py
+uv run python comprehensive_test.py
 # Make sure to use a different data storage path when switching embedding models.
 ```
 ## 📖Docker Getting Started
@@ -429,7 +428,7 @@ docker run -it --gpus=all memoryos /bin/bash
 ```bash
 cd MemoryOS/memoryos-playground/memdemo/
 
-python3 app.py
+uv run python app.py
 ```
 After launching the main interface, fill in the corresponding User ID, OpenAI API Key, Model, and API Base URL.
 <img width="645" height="645" alt="image" src="https://github.com/user-attachments/assets/b88f965a-cae5-4ba5-8d29-b82f90e2dac9" />
@@ -444,8 +443,8 @@ The user's memory is stored under MemoryOS-main/memoryos-playground/memdemo/data
 ```bash
 cd eval
 Configure API keys and other settings in the code
-python3 main_loco_parse.py
-python3 evalution_loco.py
+uv run python main_loco_parse.py
+uv run python evalution_loco.py
 ```
 
 

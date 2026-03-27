@@ -64,8 +64,7 @@ class Updater:
 
     def _get_embedding_for_page(self, text):
         """获取页面embedding的辅助方法"""
-        from .utils import get_embedding
-        return get_embedding(text)
+        return self.client.get_embedding(text)
 
     def _update_linked_pages_meta_info(self, start_page_id, new_meta_info):
         """

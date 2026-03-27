@@ -1,6 +1,0 @@
-flask
-openai
-numpy
-faiss-gpu
-python-dotenv
-sentence-transformers

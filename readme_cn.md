@@ -200,16 +200,15 @@ memoryos/
 
 ### 环境要求
 
-  * Python >= 3.10
-  * conda create -n MemoryOS python=3.10
-  * conda activate MemoryOS
+  * [uv](https://docs.astral.sh/uv/) (Python 版本和包管理器)
+  * `uv` 会自动安装正确的 Python 版本 (>= 3.10)
 
 ### 安装
 
 #### 从 PyPi 下载
 
 ```bash
-pip install memoryos-pro -i https://pypi.org/simple
+uv pip install memoryos-pro
 ```
 
 #### 从 GitHub 下载 (最新版本)
@@ -217,7 +216,7 @@ pip install memoryos-pro -i https://pypi.org/simple
 ```bash
 git clone https://github.com/BAI-LAB/MemoryOS.git
 cd MemoryOS/memoryos-pypi
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 基本用法
@@ -302,7 +301,7 @@ if __name__ == "__main__":
 
 ```bash
 cd memoryos-mcp
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. 配置
@@ -324,13 +323,13 @@ pip install -r requirements.txt
 ### 3. 启动服务器
 
 ```bash
-python server_new.py --config config.json
+uv run python server_new.py --config config.json
 ```
 
 ### 4. 测试
 
 ```bash
-python test_comprehensive.py
+uv run python test_comprehensive.py
 ```
 
 ### 5. 在 Cline 和其他客户端上配置
@@ -338,8 +337,8 @@ python test_comprehensive.py
 复制 `mcp.json` 文件，并确保文件路径正确。
 
 ```bash
-"command": "/root/miniconda3/envs/memos/bin/python"
-# 这应该更改为您虚拟环境的 Python 解释器
+"command": "uv"
+"args": ["run", "--project", "<path-to-memoryos-mcp>", "python", "<path-to-memoryos-mcp>/server_new.py", "--config", "<path-to-memoryos-mcp>/config.json"]
 ```
 
 ## 📖MemoryOS_Chromadb 上手指南
@@ -348,7 +347,7 @@ python test_comprehensive.py
 
 ```bash
 cd memoryos-chromadb
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. 测试
@@ -367,7 +366,7 @@ pip install -r requirements.txt
         mid_term_similarity_threshold=0.7,
         short_term_capacity=2
     )
-python3 comprehensive_test.py
+uv run python comprehensive_test.py
 # 切换嵌入模型时，请确保使用不同的数据存储路径。
 ```
 
@@ -403,8 +402,8 @@ docker run -it --gpus=all memoryos /bin/bash
 ```bash
 cd eval
 # 在代码中配置 API 密钥和其他设置
-python3 main_loco_parse.py
-python3 evalution_loco.py
+uv run python main_loco_parse.py
+uv run python evalution_loco.py
 ```
 
 <span id='todo'/>

@@ -8,12 +8,12 @@ from datetime import datetime
 
 try:
     from .utils import (
-        get_timestamp, generate_id, get_embedding, normalize_vector, 
+        get_timestamp, generate_id, normalize_vector,
         compute_time_decay, ensure_directory_exists, OpenAIClient
     )
 except ImportError:
     from utils import (
-        get_timestamp, generate_id, get_embedding, normalize_vector, 
+        get_timestamp, generate_id, normalize_vector,
         compute_time_decay, ensure_directory_exists, OpenAIClient
     )
 
@@ -36,17 +36,14 @@ def compute_segment_heat(session, alpha=HEAT_ALPHA, beta=HEAT_BETA, gamma=HEAT_G
     return alpha * N_visit + beta * L_interaction + gamma * R_recency
 
 class MidTermMemory:
-    def __init__(self, file_path: str, client: OpenAIClient, max_capacity=2000, embedding_model_name: str = "all-MiniLM-L6-v2", embedding_model_kwargs: dict = None):
+    def __init__(self, file_path: str, client: OpenAIClient, max_capacity=2000):
         self.file_path = file_path
         ensure_directory_exists(self.file_path)
         self.client = client
         self.max_capacity = max_capacity
-        self.sessions = {} # {session_id: session_object}
-        self.access_frequency = defaultdict(int) # {session_id: access_count_for_lfu}
-        self.heap = []  # Min-heap storing (-H_segment, session_id) for hottest segments
-
-        self.embedding_model_name = embedding_model_name
-        self.embedding_model_kwargs = embedding_model_kwargs if embedding_model_kwargs is not None else {}
+        self.sessions = {}
+        self.access_frequency = defaultdict(int)
+        self.heap = []
         self.lock = threading.Lock()
         self.load()
 
@@ -102,11 +99,7 @@ class MidTermMemory:
 
     def add_session(self, summary, details, summary_keywords=None):
         session_id = generate_id("session")
-        summary_vec = get_embedding(
-            summary, 
-            model_name=self.embedding_model_name, 
-            **self.embedding_model_kwargs
-        )
+        summary_vec = self.client.get_embedding(summary)
         summary_vec = normalize_vector(summary_vec).tolist()
         summary_keywords = summary_keywords if summary_keywords is not None else []
         
@@ -126,11 +119,7 @@ class MidTermMemory:
             else:
                 print(f"MidTermMemory: Computing new embedding for page {page_id}")
                 full_text = f"User: {page_data.get('user_input','')} Assistant: {page_data.get('agent_response','')}"
-                inp_vec = get_embedding(
-                    full_text,
-                    model_name=self.embedding_model_name,
-                    **self.embedding_model_kwargs
-                )
+                inp_vec = self.client.get_embedding(full_text)
                 inp_vec = normalize_vector(inp_vec).tolist()
             
             # 使用已有keywords或设置为空（由multi-summary提供）
@@ -193,11 +182,7 @@ class MidTermMemory:
             print("MidTermMemory: No existing sessions. Adding new session directly.")
             return self.add_session(summary_for_new_pages, pages_to_insert, keywords_for_new_pages)
 
-        new_summary_vec = get_embedding(
-            summary_for_new_pages,
-            model_name=self.embedding_model_name,
-            **self.embedding_model_kwargs
-        )
+        new_summary_vec = self.client.get_embedding(summary_for_new_pages)
         new_summary_vec = normalize_vector(new_summary_vec)
         
         best_sid = None
@@ -283,11 +268,7 @@ class MidTermMemory:
         if not self.sessions:
             return []
 
-        query_vec = get_embedding(
-            query_text,
-            model_name=self.embedding_model_name,
-            **self.embedding_model_kwargs
-        )
+        query_vec = self.client.get_embedding(query_text)
         query_vec = normalize_vector(query_vec)
         query_keywords = set()  # Keywords extraction removed, relying on semantic similarity
 

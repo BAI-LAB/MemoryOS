@@ -1,23 +1,13 @@
 import time
 import uuid
-import openai
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from openai import OpenAI
-gpt_client = OpenAI(
-        api_key='',
-    base_url='https://cn2us02.opapi.win/v1'
-)
+
 def get_timestamp():
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
 def generate_id(prefix="id"):
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
-
-def get_embedding(text, model_name="all-MiniLM-L6-v2"):
-    model = SentenceTransformer(model_name)
-    embedding = model.encode([text], convert_to_numpy=True)[0]
-    return embedding
 
 def normalize_vector(vec):
     vec = np.array(vec, dtype=np.float32)
@@ -27,21 +17,42 @@ def normalize_vector(vec):
     return vec / norm
 
 class OpenAIClient:
-    def __init__(self, api_key, base_url):
+    def __init__(self, api_key, base_url=None,
+                 embedding_api_key=None, embedding_base_url=None, embedding_model="text-embedding-3-small"):
         self.api_key = api_key
-        self.base_url = base_url
-        openai.api_key = self.api_key
-        openai.api_base = self.base_url
+        self.base_url = base_url if base_url else "https://api.openai.com/v1"
+        self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+
+        self.embedding_model = embedding_model
+        _emb_key = embedding_api_key or self.api_key
+        _emb_url = embedding_base_url or self.base_url
+        self.embedding_client = OpenAI(api_key=_emb_key, base_url=_emb_url)
+        self._embedding_cache = {}
 
     def chat_completion(self, model, messages, temperature=0.7, max_tokens=2000):
         print("调用 GPT 接口，模型:", model)
-        response = gpt_client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=model,
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens
         )
         return response.choices[0].message.content.strip()
+
+    def get_embedding(self, text):
+        cache_key = f"{self.embedding_model}::{hash(text)}"
+        if cache_key in self._embedding_cache:
+            return self._embedding_cache[cache_key]
+
+        response = self.embedding_client.embeddings.create(model=self.embedding_model, input=text)
+        embedding = np.array(response.data[0].embedding, dtype=np.float32)
+
+        self._embedding_cache[cache_key] = embedding
+        if len(self._embedding_cache) > 10000:
+            keys_to_remove = list(self._embedding_cache.keys())[:1000]
+            for key in keys_to_remove:
+                self._embedding_cache.pop(key, None)
+        return embedding
 
 def gpt_generate_answer(prompt, messages, client):
     return client.chat_completion(model="gpt-4o-mini", messages=messages, temperature=0.7, max_tokens=2000)

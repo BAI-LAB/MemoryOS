@@ -1,9 +1,10 @@
 import json
 import numpy as np
-from utils import get_timestamp, get_embedding, normalize_vector
+from utils import get_timestamp, normalize_vector
 
 class LongTermMemory:
-    def __init__(self, file_path="long_term.json"):
+    def __init__(self, file_path="long_term.json", client=None):
+        self.client = client
         self.file_path = file_path
         self.user_profiles = {}
         self.knowledge_base = []
@@ -40,7 +41,7 @@ class LongTermMemory:
         if knowledge_text.strip() == "" or knowledge_text.strip() == "- None" or knowledge_text.strip() == "- None.":
             print("长期记忆：助手知识为空，不保存。")
             return
-        vec = get_embedding(knowledge_text)
+        vec = self.client.get_embedding(knowledge_text)
         vec = normalize_vector(vec).tolist()
         entry = {
             "knowledge": knowledge_text,
@@ -69,7 +70,7 @@ class LongTermMemory:
         if knowledge_text.strip() == "" or knowledge_text.strip() == "- None"or knowledge_text.strip() == "- None.":
             print("长期记忆：私有知识为空，不保存。")
             return
-        vec = get_embedding(knowledge_text)
+        vec = self.client.get_embedding(knowledge_text)
         vec = normalize_vector(vec).tolist()
         entry = {
             "knowledge": knowledge_text,
@@ -86,7 +87,7 @@ class LongTermMemory:
     def search_knowledge(self, query, threshold=0.1, top_k=10):
         if not self.knowledge_base:
             return []
-        query_vec = get_embedding(query)
+        query_vec = self.client.get_embedding(query)
         query_vec = normalize_vector(query_vec)
         embeddings = []
         for entry in self.knowledge_base:

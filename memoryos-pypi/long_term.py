@@ -4,22 +4,19 @@ import faiss
 from collections import deque
 import threading
 try:
-    from .utils import get_timestamp, get_embedding, normalize_vector, ensure_directory_exists
+    from .utils import get_timestamp, normalize_vector, ensure_directory_exists, OpenAIClient
 except ImportError:
-    from utils import get_timestamp, get_embedding, normalize_vector, ensure_directory_exists
+    from utils import get_timestamp, normalize_vector, ensure_directory_exists, OpenAIClient
 
 class LongTermMemory:
-    def __init__(self, file_path, knowledge_capacity=100, embedding_model_name: str = "all-MiniLM-L6-v2", embedding_model_kwargs: dict = None):
+    def __init__(self, file_path, client: OpenAIClient, knowledge_capacity=100):
         self.file_path = file_path
         ensure_directory_exists(self.file_path)
+        self.client = client
         self.knowledge_capacity = knowledge_capacity
-        self.user_profiles = {} # {user_id: {data: "profile_string", "last_updated": "timestamp"}}
-        # Use deques for knowledge bases to easily manage capacity
-        self.knowledge_base = deque(maxlen=self.knowledge_capacity) # For general/user private knowledge
-        self.assistant_knowledge = deque(maxlen=self.knowledge_capacity) # For assistant specific knowledge
-
-        self.embedding_model_name = embedding_model_name
-        self.embedding_model_kwargs = embedding_model_kwargs if embedding_model_kwargs is not None else {}
+        self.user_profiles = {}
+        self.knowledge_base = deque(maxlen=self.knowledge_capacity)
+        self.assistant_knowledge = deque(maxlen=self.knowledge_capacity)
         self.lock = threading.Lock()
         self.load()
 
@@ -53,11 +50,7 @@ class LongTermMemory:
             return
         
         # If deque is full, the oldest item is automatically removed when appending.
-        vec = get_embedding(
-            knowledge_text, 
-            model_name=self.embedding_model_name, 
-            **self.embedding_model_kwargs
-        )
+        vec = self.client.get_embedding(knowledge_text)
         vec = normalize_vector(vec).tolist()
         entry = {
             "knowledge": knowledge_text,
@@ -84,11 +77,7 @@ class LongTermMemory:
         if not knowledge_deque:
             return []
         
-        query_vec = get_embedding(
-            query, 
-            model_name=self.embedding_model_name, 
-            **self.embedding_model_kwargs
-        )
+        query_vec = self.client.get_embedding(query)
         query_vec = normalize_vector(query_vec)
         
         embeddings = []

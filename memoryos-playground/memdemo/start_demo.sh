@@ -17,7 +17,7 @@ echo "========================================"
 # Install dependencies if needed
 # echo "📦 Installing dependencies..."
 cd memoryos/memdemo
-# pip install -q -r requirements.txt
+# uv sync
 
 echo "🚀 Starting MemoryOS Demo..."
 echo "🌐 Access the demo at: http://localhost:5000"
@@ -25,4 +25,4 @@ echo "🌐 Or access via: http://[your-server-ip]:5000"
 echo "========================================"
 
 # Run the application
-python app.py 
+uv run python app.py

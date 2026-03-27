@@ -11,12 +11,19 @@ import openai
 import time
 import tiktoken
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 total_tokens = 0
 num_samples=0
 # Initialize OpenAI client
 client = OpenAIClient(
-    api_key='',
-    base_url='https://cn2us02.opapi.win/v1'
+    api_key=os.environ["LLM_API_KEY"],
+    base_url=os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1"),
+    embedding_api_key=os.environ.get("EMBEDDING_API_KEY"),
+    embedding_base_url=os.environ.get("EMBEDDING_BASE_URL"),
+    embedding_model=os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small"),
 )
 
 # Heat threshold
@@ -232,7 +239,7 @@ def main():
         # Initialize memory modules
         short_mem = ShortTermMemory(max_capacity=1, file_path=f"mem_tmp_loco_final/{sample_id}_short_term.json")
         mid_mem = MidTermMemory(max_capacity=2000, file_path=f"mem_tmp_loco_final/{sample_id}_mid_term.json")
-        long_mem = LongTermMemory(file_path=f"mem_tmp_loco_final/{sample_id}_long_term.json")
+        long_mem = LongTermMemory(file_path=f"mem_tmp_loco_final/{sample_id}_long_term.json", client=client)
         dynamic_updater = DynamicUpdate(short_mem, mid_mem, long_mem, topic_similarity_threshold=0.6, client=client)
         retrieval_system = RetrievalAndAnswer(short_mem, mid_mem, long_mem, dynamic_updater, queue_capacity=10)
         

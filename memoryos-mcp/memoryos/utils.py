@@ -1,12 +1,8 @@
 import time
 import uuid
-import openai
 import numpy as np
-from sentence_transformers import SentenceTransformer
 import json
 import os
-import inspect
-from functools import wraps
 try:
     from . import prompts # 尝试相对导入
 except ImportError:
@@ -35,7 +31,7 @@ def clean_reasoning_model_output(text):
 
 # ---- OpenAI Client ----
 class OpenAIClient:
-    def __init__(self, api_key, base_url=None, max_workers=5):
+    def __init__(self, api_key, base_url=None, max_workers=5, embedding_api_key=None, embedding_base_url=None, embedding_model="text-embedding-3-small"):
         self.api_key = api_key
         self.base_url = base_url if base_url else "https://api.openai.com/v1"
         # The openai library looks for OPENAI_API_KEY and OPENAI_BASE_URL env vars by default
@@ -44,6 +40,11 @@ class OpenAIClient:
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self._lock = threading.Lock()
+        self.embedding_model = embedding_model
+        _emb_key = embedding_api_key or self.api_key
+        _emb_url = embedding_base_url or self.base_url
+        self.embedding_client = OpenAI(api_key=_emb_key, base_url=_emb_url)
+        self._embedding_cache = {}
 
     def chat_completion(self, model, messages, temperature=0.7, max_tokens=2000):
         print(f"Calling OpenAI API. Model: {model}")
@@ -97,6 +98,21 @@ class OpenAIClient:
         """关闭线程池"""
         self.executor.shutdown(wait=True)
 
+    def get_embedding(self, text):
+        cache_key = f"{self.embedding_model}::{hash(text)}"
+        if cache_key in self._embedding_cache:
+            return self._embedding_cache[cache_key]
+
+        response = self.embedding_client.embeddings.create(model=self.embedding_model, input=text)
+        embedding = np.array(response.data[0].embedding, dtype=np.float32)
+
+        self._embedding_cache[cache_key] = embedding
+        if len(self._embedding_cache) > 10000:
+            keys_to_remove = list(self._embedding_cache.keys())[:1000]
+            for key in keys_to_remove:
+                self._embedding_cache.pop(key, None)
+        return embedding
+
 # ---- Parallel Processing Utilities ----
 def run_parallel_tasks(tasks, max_workers=3):
     """
@@ -124,98 +140,6 @@ def generate_id(prefix="id"):
 
 def ensure_directory_exists(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-
-# ---- Embedding Utilities ----
-_model_cache = {}
-_embedding_cache = {}  # 添加embedding缓存
-
-def _get_valid_kwargs(func, kwargs):
-    """Helper to filter kwargs for a given function's signature."""
-    try:
-        sig = inspect.signature(func)
-        param_keys = set(sig.parameters.keys())
-        return {k: v for k, v in kwargs.items() if k in param_keys}
-    except (ValueError, TypeError):
-        # Fallback for functions/methods where signature inspection is not straightforward
-        return kwargs
-
-def get_embedding(text, model_name="all-MiniLM-L6-v2", use_cache=True, **kwargs):
-    """
-    获取文本的embedding向量。
-    支持多种主流模型，能自动适应不同库的调用方式。
-    - SentenceTransformer模型: e.g., 'all-MiniLM-L6-v2', 'Qwen/Qwen3-Embedding-0.6B'
-    - FlagEmbedding模型: e.g., 'BAAI/bge-m3'
-
-    :param text: 输入文本。
-    :param model_name: Hugging Face上的模型名称。
-    :param use_cache: 是否使用内存缓存。
-    :param kwargs: 传递给模型构造函数或encode方法的额外参数。
-                   - for Qwen: `model_kwargs`, `tokenizer_kwargs`, `prompt_name="query"`
-                   - for BGE-M3: `use_fp16=True`, `max_length=8192`
-    :return: 文本的embedding向量 (numpy array)。
-    """
-    model_config_key = json.dumps({"model_name": model_name, **kwargs}, sort_keys=True)
-    
-    if use_cache:
-        cache_key = f"{model_config_key}::{hash(text)}"
-        if cache_key in _embedding_cache:
-            return _embedding_cache[cache_key]
-    
-    # --- Model Loading ---
-    model_init_key = json.dumps({"model_name": model_name, **{k:v for k,v in kwargs.items() if k not in ['batch_size', 'max_length']}}, sort_keys=True)
-    if model_init_key not in _model_cache:
-        print(f"Loading model: {model_name}...")
-        if 'bge-m3' in model_name.lower():
-            try:
-                from FlagEmbedding import BGEM3FlagModel
-                init_kwargs = _get_valid_kwargs(BGEM3FlagModel.__init__, kwargs)
-                print(f"-> Using BGEM3FlagModel with init kwargs: {init_kwargs}")
-                _model_cache[model_init_key] = BGEM3FlagModel(model_name, **init_kwargs)
-            except ImportError:
-                raise ImportError("Please install FlagEmbedding: 'pip install -U FlagEmbedding' to use bge-m3 model.")
-        else: # Default handler for SentenceTransformer-based models (like Qwen, all-MiniLM, etc.)
-            try:
-                from sentence_transformers import SentenceTransformer
-                init_kwargs = _get_valid_kwargs(SentenceTransformer.__init__, kwargs)
-                print(f"-> Using SentenceTransformer with init kwargs: {init_kwargs}")
-                _model_cache[model_init_key] = SentenceTransformer(model_name, **init_kwargs)
-            except ImportError:
-                raise ImportError("Please install sentence-transformers: 'pip install -U sentence-transformers' to use this model.")
-            
-    model = _model_cache[model_init_key]
-    
-    # --- Encoding ---
-    embedding = None
-    if 'bge-m3' in model_name.lower():
-        encode_kwargs = _get_valid_kwargs(model.encode, kwargs)
-        print(f"-> Encoding with BGEM3FlagModel using kwargs: {encode_kwargs}")
-        result = model.encode([text], **encode_kwargs)
-        embedding = result['dense_vecs'][0]
-    else: # Default to SentenceTransformer-based models
-        encode_kwargs = _get_valid_kwargs(model.encode, kwargs)
-        print(f"-> Encoding with SentenceTransformer using kwargs: {encode_kwargs}")
-        embedding = model.encode([text], **encode_kwargs)[0]
-
-    if use_cache:
-        cache_key = f"{model_config_key}::{hash(text)}"
-        _embedding_cache[cache_key] = embedding
-        if len(_embedding_cache) > 10000:
-            keys_to_remove = list(_embedding_cache.keys())[:1000]
-            for key in keys_to_remove:
-                try:
-                    del _embedding_cache[key]
-                except KeyError:
-                    pass
-            print("Cleaned embedding cache to prevent memory overflow")
-    
-    return embedding
-
-
-def clear_embedding_cache():
-    """清空embedding缓存"""
-    global _embedding_cache
-    _embedding_cache.clear()
-    print("Embedding cache cleared")
 
 def normalize_vector(vec):
     vec = np.array(vec, dtype=np.float32)

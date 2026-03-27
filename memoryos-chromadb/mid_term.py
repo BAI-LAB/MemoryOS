@@ -7,13 +7,13 @@ from typing import Optional
 
 try:
     from .utils import (
-        get_timestamp, generate_id, get_embedding, normalize_vector, 
+        get_timestamp, generate_id, normalize_vector,
         extract_keywords_from_multi_summary, compute_time_decay, ensure_directory_exists, OpenAIClient
     )
     from .storage_provider import ChromaStorageProvider
 except ImportError:
     from utils import (
-        get_timestamp, generate_id, get_embedding, normalize_vector, 
+        get_timestamp, generate_id, normalize_vector,
         extract_keywords_from_multi_summary, compute_time_decay, ensure_directory_exists, OpenAIClient
     )
     from storage_provider import ChromaStorageProvider
@@ -37,13 +37,11 @@ def compute_segment_heat(session, alpha=HEAT_ALPHA, beta=HEAT_BETA, gamma=HEAT_G
     return alpha * N_visit + beta * L_interaction + gamma * R_recency
 
 class MidTermMemory:
-    def __init__(self, 
+    def __init__(self,
                  storage_provider: ChromaStorageProvider,
-                 user_id: str, 
-                 client: OpenAIClient, 
+                 user_id: str,
+                 client: OpenAIClient,
                  max_capacity=2000,
-                 embedding_model_name: str = "all-MiniLM-L6-v2", 
-                 embedding_model_kwargs: Optional[dict] = None,
                  llm_model: str = "gpt-4o-mini"):
         self.user_id = user_id
         self.client = client
@@ -59,9 +57,6 @@ class MidTermMemory:
         # If heap is empty, rebuild it from loaded sessions
         if not self.heap and self.sessions:
             self.rebuild_heap()
-
-        self.embedding_model_name = embedding_model_name
-        self.embedding_model_kwargs = embedding_model_kwargs if embedding_model_kwargs is not None else {}
 
     def get_page_by_id(self, page_id):
         return self.storage.get_page_by_id(page_id)
@@ -96,11 +91,7 @@ class MidTermMemory:
 
     def add_session(self, summary, details):
         session_id = generate_id("session")
-        summary_vec = get_embedding(
-            summary, 
-            model_name=self.embedding_model_name, 
-            **self.embedding_model_kwargs
-        )
+        summary_vec = self.client.get_embedding(summary)
         summary_vec = normalize_vector(summary_vec).tolist()
         summary_keywords = list(extract_keywords_from_multi_summary(summary, client=self.client,model=self.llm_model))  
         
@@ -120,11 +111,7 @@ class MidTermMemory:
             else:
                 print(f"MidTermMemory: Computing new embedding for page {page_id}")
                 full_text = f"User: {page_data.get('user_input','')} Assistant: {page_data.get('agent_response','')}"
-                inp_vec = get_embedding(
-                    full_text,
-                    model_name=self.embedding_model_name,
-                    **self.embedding_model_kwargs
-                )
+                inp_vec = self.client.get_embedding(full_text)
                 inp_vec = normalize_vector(inp_vec).tolist()
             
             # 检查是否已有keywords，避免重复计算
@@ -195,11 +182,7 @@ class MidTermMemory:
             print("MidTermMemory: No existing sessions. Adding new session directly.")
             return self.add_session(summary_for_new_pages, pages_to_insert)
 
-        new_summary_vec = get_embedding(
-            summary_for_new_pages,
-            model_name=self.embedding_model_name,
-            **self.embedding_model_kwargs
-        )
+        new_summary_vec = self.client.get_embedding(summary_for_new_pages)
         new_summary_vec = normalize_vector(new_summary_vec)
         
         # Search for similar sessions using ChromaDB
@@ -247,7 +230,7 @@ class MidTermMemory:
                 
                 if "page_embedding" not in page_data or not page_data["page_embedding"]:
                      full_text = f"User: {page_data.get('user_input','')} Assistant: {page_data.get('agent_response','')}"
-                     page_data["page_embedding"] = normalize_vector(get_embedding(full_text, model_name=self.embedding_model_name, **self.embedding_model_kwargs)).tolist()
+                     page_data["page_embedding"] = normalize_vector(self.client.get_embedding(full_text)).tolist()
 
                 if "page_keywords" not in page_data or not page_data["page_keywords"]:
                     full_text = f"User: {page_data.get('user_input','')} Assistant: {page_data.get('agent_response','')}"
@@ -281,11 +264,7 @@ class MidTermMemory:
         if not self.sessions:
             return []
 
-        query_vec = get_embedding(
-            query_text,
-            model_name=self.embedding_model_name,
-            **self.embedding_model_kwargs
-        )
+        query_vec = self.client.get_embedding(query_text)
         query_vec = normalize_vector(query_vec)
         query_keywords = set(extract_keywords_from_multi_summary(query_text, client=self.client,model=self.llm_model))
 

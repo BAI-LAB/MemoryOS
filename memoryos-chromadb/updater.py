@@ -1,17 +1,17 @@
 try:
     from .utils import (
-        generate_id, get_timestamp, 
+        generate_id, get_timestamp,
         gpt_generate_multi_summary, check_conversation_continuity, generate_page_meta_info, OpenAIClient,
-        extract_keywords_from_multi_summary, run_parallel_tasks, normalize_vector, get_embedding
+        extract_keywords_from_multi_summary, run_parallel_tasks, normalize_vector
     )
     from .short_term import ShortTermMemory
     from .mid_term import MidTermMemory
     from .long_term import LongTermMemory
 except ImportError:
     from utils import (
-        generate_id, get_timestamp, 
+        generate_id, get_timestamp,
         gpt_generate_multi_summary, check_conversation_continuity, generate_page_meta_info, OpenAIClient,
-        extract_keywords_from_multi_summary, run_parallel_tasks, normalize_vector, get_embedding
+        extract_keywords_from_multi_summary, run_parallel_tasks, normalize_vector
     )
     from short_term import ShortTermMemory
     from mid_term import MidTermMemory
@@ -50,7 +50,7 @@ class Updater:
         # 并行计算embedding和keywords（如果需要）
         tasks = []
         if not ("page_embedding" in page_data and page_data["page_embedding"]):
-            tasks.append(('embedding', lambda: get_embedding(full_text)))
+            tasks.append(('embedding', lambda: self.client.get_embedding(full_text)))
         
         if not ("page_keywords" in page_data and page_data["page_keywords"]):
             tasks.append(('keywords', lambda: extract_keywords_from_multi_summary(full_text, client=self.client,model=self.llm_model)))

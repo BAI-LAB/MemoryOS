@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "memoryos": {
-      "command": "/root/miniconda3/envs/memos/bin/python",
+      "command": "uv",
       "args": [
+        "run",
+        "--project", "/root/autodl-tmp/memoryos-mcp",
+        "python",
         "/root/autodl-tmp/memoryos-mcp/server_new.py",
         "--config",
         "/root/autodl-tmp/memoryos-mcp/config.json"

@@ -27,11 +27,11 @@ H_PROFILE_UPDATE_THRESHOLD = 5.0
 DEFAULT_ASSISTANT_ID = "default_assistant_profile"
 
 class Memoryos:
-    def __init__(self, user_id: str, 
-                 openai_api_key: str, 
+    def __init__(self, user_id: str,
+                 openai_api_key: str,
                  data_storage_path: str,
-                 openai_base_url: str = None, 
-                 assistant_id: str = DEFAULT_ASSISTANT_ID, 
+                 openai_base_url: str = None,
+                 assistant_id: str = DEFAULT_ASSISTANT_ID,
                  short_term_capacity=10,
                  mid_term_capacity=2000,
                  long_term_knowledge_capacity=100,
@@ -39,8 +39,9 @@ class Memoryos:
                  mid_term_heat_threshold=H_PROFILE_UPDATE_THRESHOLD,
                  mid_term_similarity_threshold=0.6,
                  llm_model="gpt-4o-mini",
-                 embedding_model_name: str = "all-MiniLM-L6-v2",
-                 embedding_model_kwargs: dict = None
+                 embedding_model_name: str = "text-embedding-3-small",
+                 embedding_api_key: str = None,
+                 embedding_base_url: str = None
                  ):
         self.user_id = user_id
         self.assistant_id = assistant_id
@@ -48,24 +49,13 @@ class Memoryos:
         self.llm_model = llm_model
         self.mid_term_similarity_threshold = mid_term_similarity_threshold
         self.embedding_model_name = embedding_model_name
-        
-        # Smart defaults for embedding_model_kwargs
-        if embedding_model_kwargs is None:
-            if 'bge-m3' in self.embedding_model_name.lower():
-                print("INFO: Detected bge-m3 model, defaulting embedding_model_kwargs to {'use_fp16': True}")
-                self.embedding_model_kwargs = {'use_fp16': True}
-            else:
-                self.embedding_model_kwargs = {}
-        else:
-            self.embedding_model_kwargs = embedding_model_kwargs
-
 
         print(f"Initializing Memoryos for user '{self.user_id}' and assistant '{self.assistant_id}'. Data path: {self.data_storage_path}")
         print(f"Using unified LLM model: {self.llm_model}")
-        print(f"Using embedding model: {self.embedding_model_name} with kwargs: {self.embedding_model_kwargs}")
+        print(f"Using embedding model: {self.embedding_model_name}")
 
         # Initialize OpenAI Client
-        self.client = OpenAIClient(api_key=openai_api_key, base_url=openai_base_url)
+        self.client = OpenAIClient(api_key=openai_api_key, base_url=openai_base_url, embedding_api_key=embedding_api_key, embedding_base_url=embedding_base_url, embedding_model=embedding_model_name)
 
         # Define file paths for user-specific data
         self.user_data_dir = os.path.join(self.data_storage_path, "users", self.user_id)
@@ -86,25 +76,21 @@ class Memoryos:
         # Initialize Memory Modules for User
         self.short_term_memory = ShortTermMemory(file_path=user_short_term_path, max_capacity=short_term_capacity)
         self.mid_term_memory = MidTermMemory(
-            file_path=user_mid_term_path, 
-            client=self.client, 
-            max_capacity=mid_term_capacity,
-            embedding_model_name=self.embedding_model_name,
-            embedding_model_kwargs=self.embedding_model_kwargs
+            file_path=user_mid_term_path,
+            client=self.client,
+            max_capacity=mid_term_capacity
         )
         self.user_long_term_memory = LongTermMemory(
-            file_path=user_long_term_path, 
+            file_path=user_long_term_path,
             knowledge_capacity=long_term_knowledge_capacity,
-            embedding_model_name=self.embedding_model_name,
-            embedding_model_kwargs=self.embedding_model_kwargs
+            client=self.client
         )
 
         # Initialize Memory Module for Assistant Knowledge
         self.assistant_long_term_memory = LongTermMemory(
-            file_path=assistant_long_term_path, 
+            file_path=assistant_long_term_path,
             knowledge_capacity=long_term_knowledge_capacity,
-            embedding_model_name=self.embedding_model_name,
-            embedding_model_kwargs=self.embedding_model_kwargs
+            client=self.client
         )
 
         # Initialize Orchestration Modules

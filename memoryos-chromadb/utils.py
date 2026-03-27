@@ -1,12 +1,8 @@
 import time
 import uuid
-import openai
 import numpy as np
-from sentence_transformers import SentenceTransformer
 import json
 import os
-import inspect
-from functools import wraps
 try:
     from . import prompts # 尝试相对导入
 except ImportError:
@@ -31,12 +27,17 @@ def clean_reasoning_model_output(text):
 
 # ---- OpenAI Client ----
 class OpenAIClient:
-    def __init__(self, api_key, base_url=None, max_workers=5):
+    def __init__(self, api_key, base_url=None, max_workers=5, embedding_api_key=None, embedding_base_url=None, embedding_model="text-embedding-3-small"):
         self.api_key = api_key
         self.base_url = base_url if base_url else "https://api.openai.com/v1"
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self._lock = threading.Lock()
+        self.embedding_model = embedding_model
+        _emb_key = embedding_api_key or self.api_key
+        _emb_url = embedding_base_url or self.base_url
+        self.embedding_client = OpenAI(api_key=_emb_key, base_url=_emb_url)
+        self._embedding_cache = {}
 
     def chat_completion(self, model, messages, temperature=0.7, max_tokens=2000):
         print(f"Calling OpenAI API. Model: {model}")
@@ -65,6 +66,21 @@ class OpenAIClient:
     def shutdown(self):
         self.executor.shutdown(wait=True)
 
+    def get_embedding(self, text):
+        cache_key = f"{self.embedding_model}::{hash(text)}"
+        if cache_key in self._embedding_cache:
+            return self._embedding_cache[cache_key]
+
+        response = self.embedding_client.embeddings.create(model=self.embedding_model, input=text)
+        embedding = np.array(response.data[0].embedding, dtype=np.float32)
+
+        self._embedding_cache[cache_key] = embedding
+        if len(self._embedding_cache) > 10000:
+            keys_to_remove = list(self._embedding_cache.keys())[:1000]
+            for key in keys_to_remove:
+                self._embedding_cache.pop(key, None)
+        return embedding
+
 # ---- Parallel Processing Utilities ----
 def run_parallel_tasks(tasks, max_workers=3):
     """
@@ -92,58 +108,6 @@ def generate_id(prefix="id"):
 
 def ensure_directory_exists(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-
-# ---- Embedding Utilities ----
-_model_cache = {}
-_embedding_cache = {}
-
-def _get_valid_kwargs(func, kwargs):
-    try:
-        sig = inspect.signature(func)
-        param_keys = set(sig.parameters.keys())
-        return {k: v for k, v in kwargs.items() if k in param_keys}
-    except (ValueError, TypeError):
-        return kwargs
-
-def get_embedding(text, model_name="all-MiniLM-L6-v2", use_cache=True, **kwargs):
-    model_config_key = json.dumps({"model_name": model_name, **kwargs}, sort_keys=True)
-    
-    if use_cache:
-        cache_key = f"{model_config_key}::{hash(text)}"
-        if cache_key in _embedding_cache:
-            return _embedding_cache[cache_key]
-    
-    model_init_key = json.dumps({"model_name": model_name, **{k:v for k,v in kwargs.items() if k not in ['batch_size', 'max_length']}}, sort_keys=True)
-    if model_init_key not in _model_cache:
-        print(f"Loading model: {model_name}...")
-        if 'bge-m3' in model_name.lower():
-            try:
-                from FlagEmbedding import BGEM3FlagModel
-                init_kwargs = _get_valid_kwargs(BGEM3FlagModel.__init__, kwargs)
-                _model_cache[model_init_key] = BGEM3FlagModel(model_name, **init_kwargs)
-            except ImportError:
-                raise ImportError("Please install FlagEmbedding: 'pip install -U FlagEmbedding' to use bge-m3 model.")
-        else:
-            from sentence_transformers import SentenceTransformer
-            init_kwargs = _get_valid_kwargs(SentenceTransformer.__init__, kwargs)
-            _model_cache[model_init_key] = SentenceTransformer(model_name, **init_kwargs)
-            
-    model = _model_cache[model_init_key]
-    
-    embedding = None
-    if 'bge-m3' in model_name.lower():
-        encode_kwargs = _get_valid_kwargs(model.encode, kwargs)
-        result = model.encode([text], **encode_kwargs)
-        embedding = result['dense_vecs'][0]
-    else:
-        encode_kwargs = _get_valid_kwargs(model.encode, kwargs)
-        embedding = model.encode([text], **encode_kwargs)[0]
-
-    if use_cache:
-        cache_key = f"{model_config_key}::{hash(text)}"
-        _embedding_cache[cache_key] = embedding
-    
-    return embedding
 
 def normalize_vector(vec):
     vec = np.array(vec, dtype=np.float32)

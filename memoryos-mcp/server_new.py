@@ -11,7 +11,7 @@ try:
     from mcp.server.fastmcp import FastMCP
 except ImportError as e:
     print(f"ERROR: Failed to import FastMCP. Exception: {e}", file=sys.stderr)
-    print("请安装最新版本的MCP: pip install --upgrade mcp", file=sys.stderr)
+    print("请安装最新版本的MCP: uv add mcp", file=sys.stderr)
     sys.exit(1)
 
 try:
@@ -50,7 +50,9 @@ def init_memoryos(config_path: str) -> Memoryos:
         retrieval_queue_capacity=config.get('retrieval_queue_capacity', 7),
         mid_term_heat_threshold=config.get('mid_term_heat_threshold', 5.0),
         llm_model=config.get('llm_model', 'gpt-4o-mini'),
-        embedding_model_name=config.get('embedding_model_name', 'all-MiniLM-L6-v2')
+        embedding_model_name=config.get('embedding_model_name', 'text-embedding-3-small'),
+        embedding_api_key=config.get('embedding_api_key'),
+        embedding_base_url=config.get('embedding_base_url'),
     )
 
 # 创建FastMCP服务器实例

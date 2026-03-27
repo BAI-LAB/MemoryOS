@@ -3,26 +3,24 @@ import numpy as np
 from typing import Optional, Dict, Any
 
 try:
-    from .utils import get_timestamp, get_embedding, normalize_vector, OpenAIClient, gpt_user_profile_analysis, gpt_knowledge_extraction
+    from .utils import get_timestamp, normalize_vector, OpenAIClient, gpt_user_profile_analysis, gpt_knowledge_extraction
     from .storage_provider import ChromaStorageProvider
 except ImportError:
-    from utils import get_timestamp, get_embedding, normalize_vector, OpenAIClient, gpt_user_profile_analysis, gpt_knowledge_extraction
+    from utils import get_timestamp, normalize_vector, OpenAIClient, gpt_user_profile_analysis, gpt_knowledge_extraction
     from storage_provider import ChromaStorageProvider
 
 class LongTermMemory:
-    def __init__(self, 
-                 storage_provider: ChromaStorageProvider, 
+    def __init__(self,
+                 storage_provider: ChromaStorageProvider,
                  llm_interface: OpenAIClient,
-                 knowledge_capacity=100, 
-                 embedding_model_name: str = "all-MiniLM-L6-v2", 
-                 embedding_model_kwargs: Optional[dict] = None,
-                 llm_model: str = "gpt-4o-mini"):  # 添加 llm_model 参数
+                 client: OpenAIClient = None,
+                 knowledge_capacity=100,
+                 llm_model: str = "gpt-4o-mini"):
         self.storage = storage_provider
         self.llm_interface = llm_interface
+        self.client = client or llm_interface
         self.knowledge_capacity = knowledge_capacity
-        self.embedding_model_name = embedding_model_name
-        self.embedding_model_kwargs = embedding_model_kwargs or {}
-        self.llm_model = llm_model  # 保存模型名称
+        self.llm_model = llm_model
 
     def update_user_profile(self, user_id: str, conversation_history: str) -> Optional[Dict[str, Any]]:
         """
@@ -56,11 +54,7 @@ class LongTermMemory:
             print(f"LongTermMemory: Empty {knowledge_type} knowledge received, not saving.")
             return
         
-        vec = get_embedding(
-            knowledge_text, 
-            model_name=self.embedding_model_name, 
-            **self.embedding_model_kwargs
-        )
+        vec = self.client.get_embedding(knowledge_text)
         vec = normalize_vector(vec).tolist()
         
         if knowledge_type == "user":
@@ -89,11 +83,7 @@ class LongTermMemory:
         return self.storage.get_all_assistant_knowledge()
 
     def search_knowledge(self, query: str, knowledge_type: str = "user", top_k=5) -> list:
-        query_vec = get_embedding(
-            query, 
-            model_name=self.embedding_model_name, 
-            **self.embedding_model_kwargs
-        )
+        query_vec = self.client.get_embedding(query)
         query_vec = normalize_vector(query_vec).tolist()
         
         if knowledge_type == "user":

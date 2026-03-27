@@ -1,16 +1,22 @@
 import json
+import os
 import numpy as np
 from collections import defaultdict
 import faiss
 import heapq
-from utils import get_timestamp, generate_id, get_embedding, normalize_vector, llm_extract_keywords
+from utils import get_timestamp, generate_id, normalize_vector, llm_extract_keywords, compute_time_decay
 from datetime import datetime
+from dotenv import load_dotenv
 from utils import OpenAIClient
-from utils import get_timestamp, generate_id, get_embedding, normalize_vector, llm_extract_keywords, compute_time_decay
+
+load_dotenv()
 
 client = OpenAIClient(
-    api_key='',
-    base_url='https://cn2us02.opapi.win/v1'
+    api_key=os.environ["LLM_API_KEY"],
+    base_url=os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1"),
+    embedding_api_key=os.environ.get("EMBEDDING_API_KEY"),
+    embedding_base_url=os.environ.get("EMBEDDING_BASE_URL"),
+    embedding_model=os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small"),
 )
 
 def compute_recency(last_visit_time, tau=24):
@@ -77,7 +83,7 @@ class MidTermMemory:
 
     def add_session(self, summary, details):
         session_id = generate_id("session")
-        summary_vec = get_embedding(summary)
+        summary_vec = client.get_embedding(summary)
         summary_vec = normalize_vector(summary_vec).tolist()
         summary_keywords = list(llm_extract_keywords(summary, client=client))
         
@@ -86,7 +92,7 @@ class MidTermMemory:
             if "page_id" not in page:
                 page["page_id"] = generate_id("page")
             full_text = f"User: {page.get('user_input','')} Assiant: {page.get('agent_response','')}"
-            inp_vec = get_embedding(full_text)
+            inp_vec = client.get_embedding(full_text)
             inp_vec = normalize_vector(inp_vec).tolist()
             page_keywords = list(llm_extract_keywords(full_text, client=client))
             page["page_embedding"] = inp_vec
@@ -126,7 +132,7 @@ class MidTermMemory:
         heapq.heapify(self.heap)
 
     def insert_pages_into_session(self, summary, keyworks, pages, similarity_threshold=0.6, alpha=1.0):
-        new_summary_vec = get_embedding(summary)
+        new_summary_vec = client.get_embedding(summary)
         new_summary_vec = normalize_vector(new_summary_vec)
         new_keywords = keyworks
         
@@ -157,7 +163,7 @@ class MidTermMemory:
                     if "page_id" not in p:
                         p["page_id"] = generate_id("page")
                     full_text = f"用户: {p.get('user_input','')}"
-                    vec = get_embedding(full_text)
+                    vec = client.get_embedding(full_text)
                     vec = normalize_vector(vec).tolist()
                     p["page_embedding"] = vec
                     p["page_keywords"] = keyworks
@@ -192,7 +198,7 @@ class MidTermMemory:
         index = faiss.IndexFlatIP(dim)
         index.add(embeddings)
         
-        query_vec = get_embedding(query)
+        query_vec = client.get_embedding(query)
         query_vec = normalize_vector(query_vec)
         query_arr = np.array([query_vec], dtype=np.float32)
         distances, indices = index.search(query_arr, top_k)
@@ -225,7 +231,7 @@ class MidTermMemory:
                 matched_pages = []
                 for page in session["details"]:
                     full_text = f"{page.get('user_input','')}{page.get('timestamp','')}{page.get('agent_response','')}"
-                    pvec = np.array(get_embedding(full_text), dtype=np.float32)
+                    pvec = np.array(client.get_embedding(full_text), dtype=np.float32)
                     pvec = normalize_vector(pvec)
                     sim_page = float(np.dot(pvec, query_vec))
                     if sim_page >= page_threshold:

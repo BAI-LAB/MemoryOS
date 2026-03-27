@@ -1,0 +1,16 @@
+[project]
+name = "memoryos-chromadb"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "chromadb==0.4.24",
+    "openai",
+    "flask>=2.0.0,<3.0.0",
+    "python-dotenv>=0.19.0,<2.0.0",
+    "typing-extensions>=4.0.0,<5.0.0",
+    "regex>=2022.1.18",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0.0,<8.0.0", "pytest-asyncio>=0.20.0,<1.0.0"]

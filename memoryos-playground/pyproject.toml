@@ -1,0 +1,16 @@
+[project]
+name = "memoryos-playground"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "faiss-cpu>=1.7.0,<2.0.0",
+    "openai",
+    "flask>=2.0.0,<3.0.0",
+    "python-dotenv>=0.19.0,<2.0.0",
+    "typing-extensions>=4.0.0,<5.0.0",
+    "regex>=2022.1.18",
+]
+
+[project.optional-dependencies]
+gpu = ["faiss-gpu>=1.7.0,<2.0.0"]
