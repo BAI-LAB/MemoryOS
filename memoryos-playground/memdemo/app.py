@@ -96,14 +96,17 @@ def init_memory():
         )
         
         session_id = secrets.token_hex(8)
-        memory_systems[session_id] = memory_system
-        session['memory_session_id'] = session_id
-        # 将配置存入session
-        session['memory_config'] = {
-            'api_key': api_key,
-            'base_url': base_url,
-            'model': model
+        # Store both memory system and config server-side to avoid
+        # leaking the API key in the client-side session cookie.
+        memory_systems[session_id] = {
+            'system': memory_system,
+            'config': {
+                'api_key': api_key,
+                'base_url': base_url,
+                'model': model,
+            },
         }
+        session['memory_session_id'] = session_id
         
         return jsonify({
             'success': True,
@@ -125,7 +128,7 @@ def chat():
     if not session_id or session_id not in memory_systems:
         return jsonify({'error': 'Memory system not initialized'}), 400
     
-    memory_system = memory_systems[session_id]
+    memory_system = memory_systems[session_id]['system']
     
     try:
         # Get response from memoryos (this already adds the memory internally)
@@ -146,7 +149,7 @@ def get_memory_state():
     if not session_id or session_id not in memory_systems:
         return jsonify({'error': 'Memory system not initialized'}), 400
     
-    memory_system = memory_systems[session_id]
+    memory_system = memory_systems[session_id]['system']
     
     try:
         # Get short-term memory
@@ -200,7 +203,7 @@ def trigger_analysis():
     if not session_id or session_id not in memory_systems:
         return jsonify({'error': 'Memory system not initialized'}), 400
     
-    memory_system = memory_systems[session_id]
+    memory_system = memory_systems[session_id]['system']
     
     try:
         # Check if there are any mid-term memory sessions to analyze
@@ -230,7 +233,7 @@ def personality_analysis():
     if not session_id or session_id not in memory_systems:
         return jsonify({'error': 'Memory system not initialized'}), 400
     
-    memory_system = memory_systems[session_id]
+    memory_system = memory_systems[session_id]['system']
     
     try:
         # Get user profile
@@ -336,7 +339,8 @@ def clear_memory():
     if not session_id or session_id not in memory_systems:
         return jsonify({'error': 'Memory system not initialized'}), 400
     
-    memory_system = memory_systems[session_id]
+    entry = memory_systems[session_id]
+    memory_system = entry['system']
     
     try:
         # Clear all memory files
@@ -351,10 +355,10 @@ def clear_memory():
         if os.path.exists(assistant_data_dir):
             shutil.rmtree(assistant_data_dir)
         
-        # 从session中获取配置来重新初始化
-        config = session.get('memory_config')
+        # Retrieve config from server-side storage (not from session cookie)
+        config = entry.get('config')
         if not config:
-            return jsonify({'error': 'Configuration not found in session. Please re-initialize.'}), 400
+            return jsonify({'error': 'Configuration not found. Please re-initialize.'}), 400
 
         api_key = config['api_key']
         base_url = config['base_url']
@@ -378,7 +382,10 @@ def clear_memory():
         )
         
         # Replace the old memory system
-        memory_systems[session_id] = new_memory_system
+        memory_systems[session_id] = {
+            'system': new_memory_system,
+            'config': config,
+        }
         
         return jsonify({'success': True, 'message': 'All memories cleared successfully'})
     except Exception as e:
@@ -390,7 +397,7 @@ def import_conversations():
     if not session_id or session_id not in memory_systems:
         return jsonify({'error': 'Memory system not initialized'}), 400
     
-    memory_system = memory_systems[session_id]
+    memory_system = memory_systems[session_id]['system']
     data = request.json
     conversations = data.get('conversations', [])
     
@@ -424,4 +431,4 @@ def import_conversations():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5019) 
+    app.run(debug=True, host='0.0.0.0', port=5019)
