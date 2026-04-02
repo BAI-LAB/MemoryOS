@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session
 import sys
 import os
 import json
+import re
 import shutil
 from datetime import datetime
 import secrets
@@ -19,6 +20,33 @@ app.secret_key = secrets.token_hex(16)
 
 # Global memoryos instance (in production, you'd use proper session management)
 memory_systems = {}
+
+# Regex for safe identifiers: alphanumeric, hyphens, underscores, dots (but not
+# ".." or lone "."), and no path separators.
+_SAFE_ID_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]*$')
+
+
+def _is_safe_id(value: str) -> bool:
+    """Return True if *value* is a safe identifier for use in filesystem paths.
+
+    Rejects path separators, '..' components, null bytes, and empty strings.
+    """
+    if not value:
+        return False
+    if '\x00' in value:
+        return False
+    if not _SAFE_ID_RE.match(value):
+        return False
+    # Reject any component that is exactly '.' or '..'
+    for part in value.replace('\\', '/').split('/'):
+        if part in ('.', '..'):
+            return False
+    # Belt-and-suspenders: after joining, the resolved path must stay inside
+    # the expected parent directory.
+    if '..' in value or '/' in value or '\\' in value:
+        return False
+    return True
+
 
 # 删除了固定的API_KEY, BASE_URL, MODEL
 
@@ -73,6 +101,10 @@ def init_memory():
 
     if not user_id or not api_key or not base_url or not model:
         return jsonify({'error': 'User ID, API Key, Base URL, and Model Name are required.'}), 400
+
+    # Validate user_id to prevent path traversal (CWE-22)
+    if not _is_safe_id(user_id):
+        return jsonify({'error': 'Invalid user_id. Only alphanumeric characters, hyphens, underscores, and dots are allowed.'}), 400
     
     assistant_id = f"assistant_{user_id}"
     
@@ -424,4 +456,4 @@ def import_conversations():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5019) 
+    app.run(debug=True, host='0.0.0.0', port=5019)
