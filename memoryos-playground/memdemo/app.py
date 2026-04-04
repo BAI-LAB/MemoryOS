@@ -3,8 +3,10 @@ import sys
 import os
 import json
 import shutil
+from collections import OrderedDict
 from datetime import datetime
 import secrets
+import time
 
 # Add parent directory to path to import memoryos
 # Ensure the path is /root/autodl-tmp for consistent imports
@@ -18,7 +20,14 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
 # Global memoryos instance (in production, you'd use proper session management)
-memory_systems = {}
+memory_systems = OrderedDict()
+
+# Maximum number of concurrent sessions to prevent unbounded memory growth (CWE-400)
+MAX_SESSIONS = 100
+# Sessions older than this (in seconds) are eligible for automatic cleanup
+SESSION_TTL_SECONDS = 3600  # 1 hour
+# Track creation timestamps for TTL-based eviction
+_session_timestamps = OrderedDict()
 
 # 删除了固定的API_KEY, BASE_URL, MODEL
 
@@ -59,6 +68,26 @@ memory_systems = {}
 # 启动时加载邀请码
 # VALID_INVITE_CODES = load_invite_codes()
 
+
+def _evict_expired_sessions():
+    """Remove sessions older than SESSION_TTL_SECONDS."""
+    now = time.monotonic()
+    expired = [
+        sid for sid, ts in _session_timestamps.items()
+        if now - ts > SESSION_TTL_SECONDS
+    ]
+    for sid in expired:
+        memory_systems.pop(sid, None)
+        _session_timestamps.pop(sid, None)
+
+
+def _evict_oldest_session():
+    """Remove the oldest session (FIFO) to make room for a new one."""
+    if memory_systems:
+        oldest_sid, _ = memory_systems.popitem(last=False)
+        _session_timestamps.pop(oldest_sid, None)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -74,6 +103,17 @@ def init_memory():
     if not user_id or not api_key or not base_url or not model:
         return jsonify({'error': 'User ID, API Key, Base URL, and Model Name are required.'}), 400
     
+    # Evict expired sessions first
+    _evict_expired_sessions()
+
+    # Enforce maximum session cap to prevent unbounded memory growth
+    if len(memory_systems) >= MAX_SESSIONS:
+        # Try evicting the oldest session to make room
+        _evict_oldest_session()
+
+    if len(memory_systems) >= MAX_SESSIONS:
+        return jsonify({'error': 'Server session capacity reached. Please try again later.'}), 503
+
     assistant_id = f"assistant_{user_id}"
     
     try:
@@ -97,6 +137,7 @@ def init_memory():
         
         session_id = secrets.token_hex(8)
         memory_systems[session_id] = memory_system
+        _session_timestamps[session_id] = time.monotonic()
         session['memory_session_id'] = session_id
         # 将配置存入session
         session['memory_config'] = {
@@ -424,4 +465,4 @@ def import_conversations():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5019) 
+    app.run(debug=True, host='0.0.0.0', port=5019)
