@@ -183,9 +183,13 @@ class Memoryos:
                 new_assistant_knowledge = knowledge_result.get("assistant_knowledge")
 
                 # 直接使用更新后的完整用户画像
-                if updated_user_profile and updated_user_profile.lower() != "none":
+                if (updated_user_profile and
+                        updated_user_profile.lower() != "none" and
+                        len(updated_user_profile.strip()) >= 30):
                     print("Memoryos: Updating user profile with integrated analysis...")
                     self.user_long_term_memory.update_user_profile(self.user_id, updated_user_profile, merge=False)  # 直接替换为新的完整画像
+                else:
+                    print("Memoryos: Skipping user profile update due to insufficient content.")
                 
                 # Add User Private Knowledge to user's LTM
                 if new_user_private_knowledge and new_user_private_knowledge.lower() != "none":
