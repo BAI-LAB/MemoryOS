@@ -247,12 +247,14 @@ class Memoryos:
             "agent_response": agent_response,
             "timestamp": timestamp
         }
-        self.short_term_memory.add_qa_pair(qa_pair)
-        print(f"Memoryos: Added QA to short-term. User: {user_input[:30]}...")
-
+        # FIX: Migrate old entries BEFORE adding the new one to prevent
+        # silent data loss from deque auto-eviction.
         if self.short_term_memory.is_full():
             print("Memoryos: Short-term memory full. Processing to mid-term.")
             self.updater.process_short_term_to_mid_term()
+
+        self.short_term_memory.add_qa_pair(qa_pair)
+        print(f"Memoryos: Added QA to short-term. User: {user_input[:30]}...")
         
         # After any memory addition that might impact mid-term, check for profile updates
         self._trigger_profile_and_knowledge_update_if_needed()
