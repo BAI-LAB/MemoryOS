@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session
 import sys
 import os
 import json
+import re
 import shutil
 from datetime import datetime
 import secrets
@@ -19,6 +20,23 @@ app.secret_key = secrets.token_hex(16)
 
 # Global memoryos instance (in production, you'd use proper session management)
 memory_systems = {}
+
+# Strict allowlist pattern for user_id and assistant_id:
+# Only alphanumeric characters, hyphens, underscores, and dots are allowed.
+_SAFE_ID_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$')
+
+def validate_identifier(identifier: str) -> bool:
+    """Validate that an identifier is safe for use in filesystem paths.
+
+    Returns True only when *identifier* matches a strict allowlist of
+    characters and cannot be used for path-traversal or null-byte injection.
+    """
+    if not isinstance(identifier, str) or not identifier.strip():
+        return False
+    # Reject null bytes
+    if '\x00' in identifier:
+        return False
+    return _SAFE_ID_RE.match(identifier) is not None
 
 # 删除了固定的API_KEY, BASE_URL, MODEL
 
@@ -73,6 +91,10 @@ def init_memory():
 
     if not user_id or not api_key or not base_url or not model:
         return jsonify({'error': 'User ID, API Key, Base URL, and Model Name are required.'}), 400
+
+    # Validate user_id to prevent path traversal (CWE-22)
+    if not validate_identifier(user_id):
+        return jsonify({'error': 'Invalid User ID. Only alphanumeric characters, hyphens, underscores, and dots are allowed.'}), 400
     
     assistant_id = f"assistant_{user_id}"
     
@@ -280,8 +302,6 @@ def parse_personality_traits(user_profile):
     # Extract traits from user profile
     extracted_traits = {}
     
-    import re
-    
     # Look for patterns like "Dimension ( Level(High/Medium/Low) )"
     pattern = r'([A-Za-z\s]+)\s*\(\s*([A-Za-z]+)\s*\)'
     matches = re.findall(pattern, user_profile)
@@ -342,6 +362,14 @@ def clear_memory():
         # Clear all memory files
         user_data_dir = memory_system.user_data_dir
         assistant_data_dir = memory_system.assistant_data_dir
+        data_storage_path = os.path.realpath(memory_system.data_storage_path)
+
+        # Defense-in-depth: verify directories are within the expected data path
+        # before calling shutil.rmtree (CWE-22)
+        for dir_path in (user_data_dir, assistant_data_dir):
+            real_dir = os.path.realpath(dir_path)
+            if not real_dir.startswith(data_storage_path + os.sep):
+                return jsonify({'error': 'Invalid memory data path detected.'}), 400
         
         # Remove the entire user data directory
         if os.path.exists(user_data_dir):
@@ -424,4 +452,4 @@ def import_conversations():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5019) 
+    app.run(debug=True, host='0.0.0.0', port=5019)
