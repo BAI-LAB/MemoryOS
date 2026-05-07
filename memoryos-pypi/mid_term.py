@@ -278,8 +278,8 @@ class MidTermMemory:
             print(f"MidTermMemory: No suitable session to merge (best score {best_overall_score:.2f} < threshold {similarity_threshold}). Creating new session.")
             return self.add_session(summary_for_new_pages, pages_to_insert, keywords_for_new_pages)
 
-    def search_sessions(self, query_text, segment_similarity_threshold=0.1, page_similarity_threshold=0.1, 
-                          top_k_sessions=5, keyword_alpha=1.0, recency_tau_search=3600):
+    def search_sessions(self, query_text, segment_similarity_threshold=0.1, page_similarity_threshold=0.1,
+                          top_k_sessions=5):
         if not self.sessions:
             return []
 
@@ -289,9 +289,7 @@ class MidTermMemory:
             **self.embedding_model_kwargs
         )
         query_vec = normalize_vector(query_vec)
-        query_keywords = set()  # Keywords extraction removed, relying on semantic similarity
 
-        candidate_sessions = []
         session_ids = list(self.sessions.keys())
         if not session_ids: return []
 
@@ -301,7 +299,7 @@ class MidTermMemory:
         dim = summary_embeddings_np.shape[1]
         index = faiss.IndexFlatIP(dim) # Inner product for similarity
         index.add(summary_embeddings_np)
-        
+
         query_arr_np = np.array([query_vec], dtype=np.float32)
         distances, indices = index.search(query_arr_np, min(top_k_sessions, len(session_ids)))
 
@@ -310,33 +308,20 @@ class MidTermMemory:
 
         for i, idx in enumerate(indices[0]):
             if idx == -1: continue
-            
+
             session_id = session_ids[idx]
             session = self.sessions[session_id]
             semantic_sim_score = float(distances[0][i]) # This is the dot product
 
-            # Keyword similarity for session summary
-            session_keywords = set(session.get("summary_keywords", []))
-            s_topic_keywords = 0
-            if query_keywords and session_keywords:
-                intersection = len(query_keywords.intersection(session_keywords))
-                union = len(query_keywords.union(session_keywords))
-                if union > 0: s_topic_keywords = intersection / union
-            
-            # Time decay for session recency in search scoring
-            # time_decay_factor = compute_time_decay(session["timestamp"], current_time_str, tau_hours=recency_tau_search)
-            
-            # Combined score for session relevance
-            session_relevance_score =  (semantic_sim_score + keyword_alpha * s_topic_keywords)
+            # Session relevance is based purely on semantic similarity (dot product of
+            # normalized summary embeddings = cosine similarity).
+            session_relevance_score = semantic_sim_score
 
             if session_relevance_score >= segment_similarity_threshold:
                 matched_pages_in_session = []
                 for page in session.get("details", []):
                     page_embedding = np.array(page["page_embedding"], dtype=np.float32)
-                    # page_keywords = set(page.get("page_keywords", []))
-                    
                     page_sim_score = float(np.dot(page_embedding, query_vec))
-                    # Can also add keyword sim for pages if needed, but keeping it simpler for now
 
                     if page_sim_score >= page_similarity_threshold:
                         matched_pages_in_session.append({"page_data": page, "score": page_sim_score})
