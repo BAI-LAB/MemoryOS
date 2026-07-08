@@ -97,6 +97,82 @@ class OpenAIClient:
         """关闭线程池"""
         self.executor.shutdown(wait=True)
 
+
+class LiteLLMClient:
+    """LLM client powered by LiteLLM, providing access to 100+ providers
+    (OpenAI, Anthropic, Google, Azure, AWS Bedrock, etc.) through a unified interface.
+
+    Requires: pip install litellm
+    """
+    def __init__(self, api_key=None, model=None, max_workers=5, **kwargs):
+        try:
+            import litellm  # noqa: F401
+        except ImportError:
+            raise ImportError(
+                "LiteLLM is required for this provider. "
+                "Install it with: pip install litellm"
+            )
+        self.api_key = api_key
+        self.default_model = model
+        self.extra_kwargs = kwargs
+        self.executor = ThreadPoolExecutor(max_workers=max_workers)
+        self._lock = threading.Lock()
+
+    def chat_completion(self, model, messages, temperature=0.7, max_tokens=2000):
+        import litellm
+
+        effective_model = model or self.default_model
+        print(f"Calling LiteLLM API. Model: {effective_model}")
+
+        call_kwargs = {
+            "model": effective_model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "drop_params": True,
+        }
+        if self.api_key:
+            call_kwargs["api_key"] = self.api_key
+        call_kwargs.update(self.extra_kwargs)
+
+        try:
+            response = litellm.completion(**call_kwargs)
+            raw_content = response.choices[0].message.content.strip()
+            cleaned_content = clean_reasoning_model_output(raw_content)
+            return cleaned_content
+        except Exception as e:
+            print(f"Error calling LiteLLM API: {e}")
+            return "Error: Could not get response from LLM."
+
+    def chat_completion_async(self, model, messages, temperature=0.7, max_tokens=2000):
+        return self.executor.submit(self.chat_completion, model, messages, temperature, max_tokens)
+
+    def batch_chat_completion(self, requests):
+        futures = []
+        for req in requests:
+            future = self.chat_completion_async(
+                model=req.get("model", self.default_model),
+                messages=req["messages"],
+                temperature=req.get("temperature", 0.7),
+                max_tokens=req.get("max_tokens", 2000)
+            )
+            futures.append(future)
+
+        results = []
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as e:
+                print(f"Error in batch completion: {e}")
+                results.append("Error: Could not get response from LLM.")
+
+        return results
+
+    def shutdown(self):
+        self.executor.shutdown(wait=True)
+
+
 # ---- Parallel Processing Utilities ----
 def run_parallel_tasks(tasks, max_workers=3):
     """
