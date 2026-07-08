@@ -136,10 +136,47 @@ class LiteLLMClient:
         call_kwargs.update(self.extra_kwargs)
 
         try:
+            from litellm.exceptions import (
+                AuthenticationError,
+                RateLimitError,
+                APIConnectionError,
+                Timeout,
+                NotFoundError,
+                BadRequestError,
+                ContextWindowExceededError,
+            )
+        except ImportError:
+            pass
+
+        try:
             response = litellm.completion(**call_kwargs)
-            raw_content = response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            if content is None:
+                return "Error: LLM returned empty response."
+            raw_content = content.strip()
             cleaned_content = clean_reasoning_model_output(raw_content)
             return cleaned_content
+        except AuthenticationError as e:
+            print(f"LiteLLM auth error: {e}")
+            return "Error: Authentication failed. Check your API key."
+        except RateLimitError as e:
+            print(f"LiteLLM rate limit error: {e}")
+            return "Error: Rate limit exceeded. Please retry later."
+        except APIConnectionError as e:
+            print(f"LiteLLM connection error: {e}")
+            return "Error: Could not connect to the LLM provider."
+        except Timeout as e:
+            print(f"LiteLLM timeout error: {e}")
+            return "Error: Request timed out."
+        except NotFoundError as e:
+            print(f"LiteLLM not found error: {e}")
+            return "Error: Model or endpoint not found."
+        except ContextWindowExceededError as e:
+            print(f"LiteLLM context window exceeded: {e}")
+            return "Error: Input exceeds the model's context window."
+        except BadRequestError as e:
+            print(f"LiteLLM bad request error: {e}")
+            return "Error: Bad request. Check your input parameters."
         except Exception as e:
             print(f"Error calling LiteLLM API: {e}")
             return "Error: Could not get response from LLM."

@@ -8,6 +8,7 @@ FlagEmbedding>=1.2.9                # For BGE-M3 model support
 faiss-gpu>=1.7.0,<2.0.0
 httpx[socks]
 openai
+litellm>=1.80.0
 # Web framework (for demo)
 flask>=2.0.0,<3.0.0
 
