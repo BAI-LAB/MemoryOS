@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # 修改为绝对导入
 try:
     # 尝试相对导入（当作为包使用时）
-    from .utils import OpenAIClient, get_timestamp, generate_id, gpt_user_profile_analysis, gpt_knowledge_extraction, ensure_directory_exists
+    from .utils import OpenAIClient, LiteLLMClient, get_timestamp, generate_id, gpt_user_profile_analysis, gpt_knowledge_extraction, ensure_directory_exists
     from . import prompts
     from .short_term import ShortTermMemory
     from .mid_term import MidTermMemory, compute_segment_heat # For H_THRESHOLD logic
@@ -14,7 +14,7 @@ try:
     from .retriever import Retriever
 except ImportError:
     # 回退到绝对导入（当作为独立模块使用时）
-    from utils import OpenAIClient, get_timestamp, generate_id, gpt_user_profile_analysis, gpt_knowledge_extraction, ensure_directory_exists
+    from utils import OpenAIClient, LiteLLMClient, get_timestamp, generate_id, gpt_user_profile_analysis, gpt_knowledge_extraction, ensure_directory_exists
     import prompts
     from short_term import ShortTermMemory
     from mid_term import MidTermMemory, compute_segment_heat # For H_THRESHOLD logic
@@ -27,11 +27,11 @@ H_PROFILE_UPDATE_THRESHOLD = 5.0
 DEFAULT_ASSISTANT_ID = "default_assistant_profile"
 
 class Memoryos:
-    def __init__(self, user_id: str, 
-                 openai_api_key: str, 
-                 data_storage_path: str,
-                 openai_base_url: str = None, 
-                 assistant_id: str = DEFAULT_ASSISTANT_ID, 
+    def __init__(self, user_id: str,
+                 openai_api_key: str = None,
+                 data_storage_path: str = ".",
+                 openai_base_url: str = None,
+                 assistant_id: str = DEFAULT_ASSISTANT_ID,
                  short_term_capacity=10,
                  mid_term_capacity=2000,
                  long_term_knowledge_capacity=100,
@@ -40,7 +40,10 @@ class Memoryos:
                  mid_term_similarity_threshold=0.6,
                  llm_model="gpt-4o-mini",
                  embedding_model_name: str = "all-MiniLM-L6-v2",
-                 embedding_model_kwargs: dict = None
+                 embedding_model_kwargs: dict = None,
+                 provider: str = "openai",
+                 api_key: str = None,
+                 **provider_kwargs
                  ):
         self.user_id = user_id
         self.assistant_id = assistant_id
@@ -64,8 +67,20 @@ class Memoryos:
         print(f"Using unified LLM model: {self.llm_model}")
         print(f"Using embedding model: {self.embedding_model_name} with kwargs: {self.embedding_model_kwargs}")
 
-        # Initialize OpenAI Client
-        self.client = OpenAIClient(api_key=openai_api_key, base_url=openai_base_url)
+        # Initialize LLM Client
+        resolved_key = api_key or openai_api_key
+        self.provider = provider.lower()
+        if self.provider == "litellm":
+            self.client = LiteLLMClient(
+                api_key=resolved_key,
+                model=self.llm_model,
+                **provider_kwargs
+            )
+        else:
+            self.client = OpenAIClient(
+                api_key=resolved_key or "",
+                base_url=openai_base_url
+            )
 
         # Define file paths for user-specific data
         self.user_data_dir = os.path.join(self.data_storage_path, "users", self.user_id)
