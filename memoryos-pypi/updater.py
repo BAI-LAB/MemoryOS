@@ -105,7 +105,9 @@ class Updater:
                 evicted_qas.append(qa)
         
         if not evicted_qas:
-            print("Updater: No QAs evicted from short-term memory.")
+            print("Updater: No valid QAs evicted from short-term memory. "
+                  "Resetting cross-batch continuity tracker to prevent stale linking.")
+            self.last_evicted_page_for_continuity = None
             return
 
         print(f"Updater: Processing {len(evicted_qas)} QAs from short-term to mid-term.")
