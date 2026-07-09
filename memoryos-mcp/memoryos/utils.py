@@ -46,22 +46,31 @@ class OpenAIClient:
         self._lock = threading.Lock()
 
     def chat_completion(self, model, messages, temperature=0.7, max_tokens=2000):
-        print(f"Calling OpenAI API. Model: {model}")
-        try:
-            response = self.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens
-            )
-            raw_content = response.choices[0].message.content.strip()
-            # 自动清理推理模型的<think>标签
-            cleaned_content = clean_reasoning_model_output(raw_content)
-            return cleaned_content
-        except Exception as e:
-            print(f"Error calling OpenAI API: {e}")
-            # Fallback or error handling
-            return "Error: Could not get response from LLM."
+        max_retries = 3
+        for attempt in range(max_retries):
+            print(f"Calling OpenAI API. Model: {model} (attempt {attempt + 1}/{max_retries})")
+            try:
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                raw_content = response.choices[0].message.content.strip()
+                # 自动清理推理模型的<think>标签
+                cleaned_content = clean_reasoning_model_output(raw_content)
+                return cleaned_content
+            except Exception as e:
+                error_str = str(e).lower()
+                is_retryable = any(code in error_str for code in ["429", "502", "503", "timeout", "connection"])
+                if is_retryable and attempt < max_retries - 1:
+                    wait_time = 2 ** attempt
+                    print(f"Error calling OpenAI API: {e}. Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"Error calling OpenAI API: {e}")
+                    return "Error: Could not get response from LLM."
+        return "Error: Could not get response from LLM."
 
     def chat_completion_async(self, model, messages, temperature=0.7, max_tokens=2000):
         """异步版本的chat_completion"""
