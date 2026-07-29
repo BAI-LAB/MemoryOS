@@ -249,7 +249,8 @@ memoryos/
 
 ### Prerequisites
 
-*   Python >= 3.10
+*   Python 3.10 or 3.11
+*   Python 3.12 is not currently supported for installation from source because `memoryos-pypi/requirements.txt` pins `numpy==1.24.*`.
 *   conda create -n MemoryOS python=3.10
 *   conda activate MemoryOS
 
