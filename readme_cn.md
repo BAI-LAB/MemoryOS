@@ -462,7 +462,7 @@ MemoryOS 正在不断发展！以下是即将推出的功能：
 
 ## 🌟 Star 历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=BAI-LAB/MemoryOS&type=Timeline)](https://www.star-history.com/#BAI-LAB/MemoryOS&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=BAI-LAB/MemoryOS&type=Timeline)](https://star-history.dera.page/#BAI-LAB/MemoryOS&type=Timeline)
 
 ## 免责声明
 
