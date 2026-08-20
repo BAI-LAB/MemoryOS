@@ -114,6 +114,41 @@ def gpt_summarize(dialogs, client):
     print("调用 GPT 生成主题摘要...")
     return gpt_generate_answer(prompt, messages, client)
 
+def strip_code_fence(text):
+    """Return `text` without a surrounding Markdown code fence.
+
+    Many current models wrap JSON in a ```json ... ``` fence by default,
+    even when asked for bare JSON. That is a correct answer, but
+    json.loads rejects it, so every caller below falls back and loses the
+    structure it asked for. Text that is not fenced is returned unchanged.
+
+    >>> strip_code_fence('[{"theme": "trip"}]')
+    '[{"theme": "trip"}]'
+    >>> strip_code_fence('```json\\n[{"theme": "trip"}]\\n```')
+    '[{"theme": "trip"}]'
+    >>> strip_code_fence('```\\n{"a": 1}\\n```')
+    '{"a": 1}'
+    >>> strip_code_fence('  ```json\\n{"a": 1}\\n```  ')
+    '{"a": 1}'
+    >>> strip_code_fence('```json\\n{"a": 1}')
+    '{"a": 1}'
+    >>> strip_code_fence('')
+    ''
+    """
+    if not text:
+        return text
+    stripped = text.strip()
+    if not stripped.startswith("```"):
+        return text
+    lines = stripped.splitlines()
+    # Drop the opening fence line, which carries the optional language tag.
+    lines = lines[1:]
+    # Drop the closing fence when the model sent one (it may be truncated).
+    if lines and lines[-1].strip().startswith("```"):
+        lines = lines[:-1]
+    return "\n".join(lines).strip()
+
+
 def gpt_generate_multi_summary(text, client):
     """
     调用 LLM 生成多子主题摘要，返回格式示例如下：
@@ -137,7 +172,7 @@ def gpt_generate_multi_summary(text, client):
     response_text = gpt_generate_answer(prompt, messages, client)
     import json
     try:
-        summaries = json.loads(response_text)
+        summaries = json.loads(strip_code_fence(response_text))
     except Exception:
         summaries = []
     return {"input": text, "summaries": summaries}
