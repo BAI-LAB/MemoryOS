@@ -248,6 +248,41 @@ def gpt_summarize_dialogs(dialogs, client: OpenAIClient, model="gpt-4o-mini"):
     print("Calling LLM to generate topic summary...")
     return client.chat_completion(model=model, messages=messages)
 
+def strip_code_fence(text):
+    """Return `text` without a surrounding Markdown code fence.
+
+    Many current models wrap JSON in a ```json ... ``` fence by default,
+    even when asked for bare JSON. That is a correct answer, but
+    json.loads rejects it, so every caller below falls back and loses the
+    structure it asked for. Text that is not fenced is returned unchanged.
+
+    >>> strip_code_fence('[{"theme": "trip"}]')
+    '[{"theme": "trip"}]'
+    >>> strip_code_fence('```json\\n[{"theme": "trip"}]\\n```')
+    '[{"theme": "trip"}]'
+    >>> strip_code_fence('```\\n{"a": 1}\\n```')
+    '{"a": 1}'
+    >>> strip_code_fence('  ```json\\n{"a": 1}\\n```  ')
+    '{"a": 1}'
+    >>> strip_code_fence('```json\\n{"a": 1}')
+    '{"a": 1}'
+    >>> strip_code_fence('')
+    ''
+    """
+    if not text:
+        return text
+    stripped = text.strip()
+    if not stripped.startswith("```"):
+        return text
+    lines = stripped.splitlines()
+    # Drop the opening fence line, which carries the optional language tag.
+    lines = lines[1:]
+    # Drop the closing fence when the model sent one (it may be truncated).
+    if lines and lines[-1].strip().startswith("```"):
+        lines = lines[:-1]
+    return "\n".join(lines).strip()
+
+
 def gpt_generate_multi_summary(text, client: OpenAIClient, model="gpt-4o-mini"):
     messages = [
         {"role": "system", "content": prompts.MULTI_SUMMARY_SYSTEM_PROMPT},
@@ -256,7 +291,7 @@ def gpt_generate_multi_summary(text, client: OpenAIClient, model="gpt-4o-mini"):
     print("Calling LLM to generate multi-topic summary...")
     response_text = client.chat_completion(model=model, messages=messages)
     try:
-        summaries = json.loads(response_text)
+        summaries = json.loads(strip_code_fence(response_text))
     except json.JSONDecodeError:
         print(f"Warning: Could not parse multi-summary JSON: {response_text}")
         summaries = [] # Return empty list or a default structure
