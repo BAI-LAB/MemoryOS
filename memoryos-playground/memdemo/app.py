@@ -5,17 +5,22 @@ import json
 import shutil
 from datetime import datetime
 import secrets
+import asyncio
+import uuid
 
-# Add parent directory to path to import memoryos
-# Ensure the path is /root/autodl-tmp for consistent imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from web_context import ParallelWebContext, WebContextError, is_web_url
+
+# Import the sibling MemoryOS implementation from a source checkout.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import memoryos modules directly
 from memoryos import Memoryos
-from memoryos.utils import get_timestamp
+from utils import get_timestamp
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
+app.config['WEB_SEARCH_ENABLED'] = os.environ.get('MEMORYOS_WEB_SEARCH_ENABLED', '1') != '0'
+web_client = ParallelWebContext()
 
 # Global memoryos instance (in production, you'd use proper session management)
 memory_systems = {}
@@ -61,7 +66,7 @@ memory_systems = {}
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', web_search_enabled=app.config['WEB_SEARCH_ENABLED'])
 
 @app.route('/init_memory', methods=['POST'])
 def init_memory():
@@ -98,6 +103,7 @@ def init_memory():
         session_id = secrets.token_hex(8)
         memory_systems[session_id] = memory_system
         session['memory_session_id'] = session_id
+        session['web_conversation_id'] = uuid.uuid4().hex
         # 将配置存入session
         session['memory_config'] = {
             'api_key': api_key,
@@ -118,8 +124,22 @@ def init_memory():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    data = request.json
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({'error': 'A JSON message is required.'}), 400
     user_input = data.get('message', '')
+    web_mode = data.get('web_mode', 'off')
+    if not isinstance(user_input, str) or not user_input.strip():
+        return jsonify({'error': 'A message is required.'}), 400
+    if web_mode not in ('off', 'search', 'fetch'):
+        return jsonify({'error': 'Unknown web action.'}), 400
+    if web_mode != 'off':
+        if not app.config['WEB_SEARCH_ENABLED']:
+            return jsonify({'error': 'Web actions are disabled by the server.'}), 403
+        if len(user_input) > 2000:
+            return jsonify({'error': 'Web messages must be at most 2000 characters.'}), 400
+        if web_mode == 'fetch' and not is_web_url(user_input.strip()):
+            return jsonify({'error': 'Read URL requires a single HTTP or HTTPS URL.'}), 400
     
     session_id = session.get('memory_session_id')
     if not session_id or session_id not in memory_systems:
@@ -129,14 +149,27 @@ def chat():
     
     try:
         # Get response from memoryos (this already adds the memory internally)
-        response = memory_system.get_response(user_input)
+        sources = []
+        if web_mode == 'off':
+            response = memory_system.get_response(user_input)
+        else:
+            # Set once at init/reset, never per tool call, retry or HTTP connection.
+            conversation_id = session.get('web_conversation_id')
+            if not conversation_id:
+                return jsonify({'error': 'Please re-initialize before using web actions.'}), 400
+            context = asyncio.run(web_client.retrieve(user_input.strip(), web_mode, conversation_id))
+            response = memory_system.get_response(user_input, web_context=context.text)
+            sources = context.sources
         
         # Do NOT add memory again here - it's already done in get_response()
         
         return jsonify({
             'response': response,
-            'timestamp': get_timestamp()
+            'timestamp': get_timestamp(),
+            'sources': sources
         })
+    except WebContextError as e:
+        return jsonify({'error': str(e)}), 502
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -379,6 +412,7 @@ def clear_memory():
         
         # Replace the old memory system
         memory_systems[session_id] = new_memory_system
+        session['web_conversation_id'] = uuid.uuid4().hex
         
         return jsonify({'success': True, 'message': 'All memories cleared successfully'})
     except Exception as e:
@@ -424,4 +458,4 @@ def import_conversations():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5019) 
+    app.run(debug=True, host='0.0.0.0', port=5019)

@@ -613,6 +613,13 @@
                                 </div>
                             </div>
                             
+                            <label for="webMode" class="form-label">Context for this message</label>
+                            <select id="webMode" class="form-select mb-2" {% if not web_search_enabled %}disabled{% endif %}>
+                                <option value="off" selected>Memory only</option>
+                                <option value="search">Search web with Parallel</option>
+                                <option value="fetch">Read URL with Parallel</option>
+                            </select>
+                            <p class="small text-muted">Web actions send this message or URL to Parallel. Stored memories are not sent. Read URL accepts one HTTP(S) URL. The next turn returns to Memory only.</p>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
                                 <button class="btn btn-primary" onclick="sendMessage()">
@@ -1015,6 +1022,9 @@
 
             if (!message) return;
 
+            const webMode = document.getElementById('webMode').value;
+            document.getElementById('webMode').value = 'off';
+
             // Add user message to chat
             addMessageToChat(message, 'user');
             messageInput.value = '';
@@ -1034,7 +1044,8 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        message: message
+                        message: message,
+                        web_mode: webMode
                     })
                 });
 
@@ -1048,6 +1059,7 @@
 
                 if (data.response) {
                     addMessageToChat(data.response, 'bot');
+                    addSourcesToChat(data.sources || []);
                     updateMemoryVisualization();
                 } else {
                     addMessageToChat('Error: ' + data.error, 'bot');
@@ -1068,12 +1080,38 @@
             messageDiv.className = `message ${sender}-message`;
             
             const timestamp = new Date().toLocaleTimeString();
-            messageDiv.innerHTML = `
-                ${message}
-                <div class="timestamp">${timestamp}</div>
-            `;
+            messageDiv.style.whiteSpace = 'pre-wrap';
+            messageDiv.textContent = message;
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'timestamp';
+            timeDiv.textContent = timestamp;
+            messageDiv.appendChild(timeDiv);
 
             chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addSourcesToChat(sources) {
+            if (!sources.length) return;
+            const sourceDiv = document.createElement('div');
+            sourceDiv.className = 'message bot-message';
+            const heading = document.createElement('strong');
+            heading.textContent = 'Web sources';
+            sourceDiv.appendChild(heading);
+            for (const source of sources) {
+                let url;
+                try { url = new URL(source.url); } catch { continue; }
+                if (!['http:', 'https:'].includes(url.protocol)) continue;
+                const link = document.createElement('a');
+                link.href = url.href;
+                link.textContent = source.title || source.url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                sourceDiv.appendChild(document.createElement('br'));
+                sourceDiv.appendChild(link);
+            }
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.appendChild(sourceDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 

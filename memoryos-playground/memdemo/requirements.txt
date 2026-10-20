@@ -1,4 +1,4 @@
-flask
+-r requirements-web.txt
 openai
 numpy
 faiss-gpu

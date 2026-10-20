@@ -436,6 +436,24 @@ After launching the main interface, fill in the corresponding User ID, OpenAI AP
 
 After entering the system, you can use the Help button to view the functions of each button. 
 
+### Web context in the Playground
+
+In an existing MemoryOS environment, install the web add-on before starting the Playground:
+
+```bash
+cd MemoryOS/memoryos-playground/memdemo/
+pip install -r requirements-web.txt
+python3 app.py
+```
+
+For a current-information question, choose **Search web with Parallel** under **Context for this message**. To read a page, choose **Read URL with Parallel** and send a single HTTP or HTTPS URL. The Playground uses [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp) at `https://search.parallel.ai/mcp`, with no search account or API key required. Anonymous search uses Fast mode. The answer uses the returned excerpts alongside your existing memory context, and source links appear below it.
+
+**Memory only** remains the default, and each send resets the selector to it. Web actions send only the current message or URL and an opaque conversation identifier to Parallel, never stored memories, profiles or LLM credentials. Your configured LLM still receives the memory context and, for web turns, the retrieved excerpts; the question and answer are saved through the usual memory flow. New initialization or **Clear Memory** starts a new web conversation identifier.
+
+Set `MEMORYOS_WEB_SEARCH_ENABLED=0` before launching to disable web actions on the server. Search errors or timeouts are shown without generating or saving a replacement answer. Anonymous access has service limits; you can retry later or send a Memory only turn. This feature is limited to the Playground and does not change the standalone memory library or the MemoryOS MCP server's tools.
+
+The web caller tests need only the add-on dependencies: run `python -m unittest discover -s tests -v` from `memoryos-playground/memdemo`. They exercise the chat route, MCP transport and response generation with deterministic memory backends and model responses, without downloading embedding models.
+
 The user's memory is stored under MemoryOS-main/memoryos-playground/memdemo/data
 
 <img width="645" height="645" alt="image" src="https://github.com/user-attachments/assets/770857d7-5ea2-46b3-8f5c-8150c32d942a" />

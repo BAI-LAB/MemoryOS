@@ -1,4 +1,5 @@
 # MemoryOS Core Dependencies
+-r memdemo/requirements-web.txt
 # Core scientific computing and ML libraries
 numpy==1.24.*
 sentence-transformers>=2.7.0,<3.0.0 # Updated for Qwen model support
