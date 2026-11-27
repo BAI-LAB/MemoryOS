@@ -279,7 +279,9 @@ class ChromaStorageProvider:
         self.metadata.setdefault("access_frequency", {})[session_id] = count
         
     def get_heap_state(self) -> List:
-        return self.metadata.get("heap_state", [])
+        # JSON has no tuples, so entries saved as (-heat, session_id) come back
+        # as lists. heapq cannot compare a list with the tuples pushed later.
+        return [tuple(item) for item in self.metadata.get("heap_state", [])]
         
     def save_heap_state(self, heap: List):
         self.metadata["heap_state"] = heap
